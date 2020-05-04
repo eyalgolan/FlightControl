@@ -7,10 +7,10 @@ namespace FlightControlWeb.Models
 {
     interface IFlightsManager
     {
-        Flight[] GetServerFlights(DateTime dt);
-        Flight[] GetAllFlights(DateTime dt);
+        Flight[] GetServerFlights(String dt);
+        Flight[] GetAllFlights(String dt);
         void AddFlightPlan(FlightPlan fp);
-        FlightPlan GetFlight(int id);
+        FlightPlan GetFlight(String id);
         void DeleteFlight(Flight f);
     }
 }
