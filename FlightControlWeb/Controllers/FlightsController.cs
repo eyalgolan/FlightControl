@@ -18,9 +18,16 @@ namespace FlightControlWeb.Controllers
         {
             this.flightManager = fm;
         }
-        // GET: api/Flights
+        // GET: api/Flights?relative_to=<DATE_TIME>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<string> GetAllFlights()
+        {
+            return new string[] { "value1", "value2" };
+        }
+
+        // GET: api/Flights?relative_to=<DATE_TIME>&syc_all
+        [HttpGet]
+        public IEnumerable<string> GetAllServersFlights()
         {
             return new string[] { "value1", "value2" };
         }
@@ -32,21 +39,16 @@ namespace FlightControlWeb.Controllers
             return "value";
         }
 
-        // POST: api/Flights
+        // POST: api/FlightPlan
         [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT: api/Flights/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public void PostFlightPlan([FromBody] string value)
         {
         }
 
         // DELETE: api/ApiWithActions/5
+        // we want DELETE: /api/Flights/{id}
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void DeleteFlightById(int id)
         {
         }
     }
