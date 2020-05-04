@@ -7,9 +7,10 @@ namespace FlightControlWeb.Models
 {
     public class ServersManager : IServersManager
     {
+        private static List<Server> servers = new List<Server>();
         public void AddExternalServer(Server s)
         {
-            throw new NotImplementedException();
+            servers.Add(s);
         }
 
         public void DeleteExternalServer(string id)

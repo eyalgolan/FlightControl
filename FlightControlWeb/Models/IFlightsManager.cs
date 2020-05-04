@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FlightControlWeb.Models
 {
-    interface IFlightsManager
+    public interface IFlightsManager
     {
         IEnumerable<Flight> GetServerFlights(String dt);
         IEnumerable<Flight> GetAllFlights(String dt);

@@ -7,14 +7,22 @@ namespace FlightControlWeb.Models
 {
     public class FlightsManager : IFlightsManager
     {
+        private static List<Flight> flights = new List<Flight>();
+        private static List<FlightPlan> flightPlans = new List<FlightPlan>();
+
         public void AddFlightPlan(FlightPlan fp)
         {
-            throw new NotImplementedException();
+            flightPlans.Add(fp);
         }
 
         public void DeleteFlight(Flight f)
         {
-            throw new NotImplementedException();
+            Flight toRemove = flights.Where(x => x.FlightId == f.FlightId).FirstOrDefault();
+            if (toRemove == null)
+            {
+                throw new Exception("flight not found");
+            }
+            flights.Remove(toRemove);
         }
 
         public IEnumerable<Flight> GetAllFlights(string dt)
@@ -24,6 +32,12 @@ namespace FlightControlWeb.Models
 
         public FlightPlan GetFlightById(string id)
         {
+            //FlightPlan toRemove = flightPlans.Where(x => x.FlightId == f.FlightId).FirstOrDefault();
+            //if (toRemove == null)
+            //{
+            //    throw new Exception("flightPlan not found");
+            //}
+            //flightPlans.Remove(toRemove);
             throw new NotImplementedException();
         }
 
