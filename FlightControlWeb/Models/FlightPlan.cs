@@ -9,6 +9,11 @@ namespace FlightControlWeb.Models
     {
         public int Passengers { get; set; }
         public String CompanyName { get; set; }
+        public int initialLogtitude { get; set; }
+        public int initialLatitude { get; set; }
+        public int initialDateTime { get; set; }
+
+        public List<Segment> segments;
 
         // todo add relavent fields
     }

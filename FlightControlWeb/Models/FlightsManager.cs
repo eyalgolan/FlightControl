@@ -8,11 +8,11 @@ namespace FlightControlWeb.Models
     public class FlightsManager : IFlightsManager
     {
         private static List<Flight> flights = new List<Flight>();
-        private static List<FlightPlan> flightPlans = new List<FlightPlan>();
 
         public void AddFlightPlan(FlightPlan fp)
         {
-            flightPlans.Add(fp);
+            Flight newFlight = new Flight(fp);
+            flights.Add(newFlight);
         }
 
         public void DeleteFlight(Flight f)
