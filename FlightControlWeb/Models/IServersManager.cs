@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace FlightControlWeb.Models
 {
-    interface IServerManager
+    interface IServersManager
     {
-        Server[] GetExternalServers();
+        IEnumerable<Server> GetExternalServers();
         void AddExternalServer(Server s);
         void DeleteExternalServer(String id);
     }
