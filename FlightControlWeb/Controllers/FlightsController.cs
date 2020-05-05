@@ -34,15 +34,19 @@ namespace FlightControlWeb.Controllers
 
         // GET: api/Flights/5
         [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
+        public FlightPlan Get(int id)
         {
-            return "value";
+            FlightPlan fp = this.flightManager.GetFlightById(id);
+            return fp;
         }
 
         // POST: api/FlightPlan
         [HttpPost]
-        public void PostFlightPlan([FromBody] string value)
+        public FlightPlan PostFlightPlan(FlightPlan fp)
         {
+            // 
+            this.flightManager.AddFlightPlan(fp);
+            return fp;
         }
 
         // DELETE: api/ApiWithActions/5

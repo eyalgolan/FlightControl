@@ -27,6 +27,7 @@ namespace FlightControlWeb.Models
         public String CompanyName { get; set; }
         public String DateTime { get; set; }
         public Boolean IsExternal { get; set; }
+        public FlightPlan Fp { get; set; }
 
         public Flight (FlightPlan fpInput)
         {

@@ -30,15 +30,10 @@ namespace FlightControlWeb.Models
             throw new NotImplementedException();
         }
 
-        public FlightPlan GetFlightById(string id)
+        public FlightPlan GetFlightById(int id)
         {
-            //FlightPlan toRemove = flightPlans.Where(x => x.FlightId == f.FlightId).FirstOrDefault();
-            //if (toRemove == null)
-            //{
-            //    throw new Exception("flightPlan not found");
-            //}
-            //flightPlans.Remove(toRemove);
-            throw new NotImplementedException();
+            FlightPlan toReturn = flights.Where(x => x.FlightId == id).FirstOrDefault().Fp;
+            return toReturn;
         }
 
         public IEnumerable<Flight> GetServerFlights(string dt)
