@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using FlightControlWeb;
+using FlightControlWeb.Models;
 
 namespace FlightControlWeb
 {
@@ -26,6 +28,7 @@ namespace FlightControlWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddScoped<IFlightsManager, FlightsManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,6 +38,8 @@ namespace FlightControlWeb
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseStaticFiles();
 
             app.UseHttpsRedirection();
 
@@ -46,6 +51,8 @@ namespace FlightControlWeb
             {
                 endpoints.MapControllers();
             });
+
+            //app.UseDefaultFiles(new DefaultFilesOptions { DefaultFileNames = new List<string> { "FlightsPage.html" } });
         }
     }
 }

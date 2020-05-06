@@ -1,0 +1,17 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>hello</title>
+</head>
+<body>
+    <h2>something something something!!!!!</h2>
+    <script src="..\Scripts\jquery\jquery.min.js"></script>
+    <script>
+        var flightsUrl = "../api/flights/";
+        $.getJSON(flightsUrl, function (data) {
+            console.log(data);
+        });
+    </script>
+</body>
+</html>

@@ -18,16 +18,9 @@ namespace FlightControlWeb.Controllers
         {
             this.flightManager = fm;
         }
-        // GET: api/Flights?relative_to=<DATE_TIME>
+        // GET: api/Flights?relative_to=<DATE_TIME> api/Flights?relative_to=<DATE_TIME>&syc_all
         [HttpGet]
         public IEnumerable<string> GetAllFlights()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET: api/Flights?relative_to=<DATE_TIME>&syc_all
-        [HttpGet]
-        public IEnumerable<string> GetAllServersFlights()
         {
             return new string[] { "value1", "value2" };
         }
