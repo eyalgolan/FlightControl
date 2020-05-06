@@ -3,8 +3,14 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "jquery@3.5.0",
-      "destination": "Scripts/jquery/"
+      "library": "jquery@3.5.1",
+      "destination": "wwwroot/lib/jquery/"
     }
-  ]
+,
+{
+  "provider": "unpkg",
+  "library": "bootstrap@4.4.1",
+  "destination": "wwwroot/lib/bootstrap/"
+}
+]
 }
