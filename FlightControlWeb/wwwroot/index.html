@@ -1,0 +1,42 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <script type='text/javascript' src='js/jquery-3.5.0.min.js'></script>
+    <script type='text/javascript' src="../bootstrap/scripts/bootstrap.min.js"></script>
+    <!--<script type='text/javascript' src="../bootstrap/scripts/popper.min.js"></script>-->
+    <script type='text/javascript' src="js/leaflet.js"></script>
+    <script type='text/javascript' src='js/dropzone.js'></script>
+    <script type='text/javascript' src='js/index.js'></script>
+    <script type='application/json' src='json/markers.json'>
+    </script>
+
+    <link rel="stylesheet" href="../bootstrap/content/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/leaflet.css" />
+    <link rel="stylesheet" href="css/dropzone.css" />
+</head>
+
+<body>
+    <h1>Leaflet Example</h1>
+    <h4 class="text-info">Here's a map of the countries I've either lived in or travelled through for a month or more.</h4>
+    <div id="map" style="height: 440px; border: 1px solid #AAA;"></div>
+    <!--<form action="UploadImages"
+          class="dropzone"
+          id="DropZoneFiddle" enctype="multipart/form-data">
+        <span class="glyphicon glyphicon-download"></span>
+        <br />
+    </form>-->
+    
+    <div class="container">
+        <div class="row my-4">
+            <div class="col">
+                <form action="/file-upload" class="dropzone dz-clickable" id="my-dropzone">
+                    <div class="dz-message d-flex flex-column">
+                        Drag &amp; Drop here or click
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
