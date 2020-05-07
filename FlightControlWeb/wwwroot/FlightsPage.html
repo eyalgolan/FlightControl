@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <script src="lib/jquery/jquery.min.js"></script>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
 
@@ -43,9 +44,9 @@
             </div>
         </div>
     </div>
-    <script src="lib/jquery/jquery.min.js"></script>
+    
     <script>
-        var flightsUrl = "../api/flights/";
+        const flightsUrl = "../api/flights/";
         $.getJSON(flightsUrl, function (data) {
             data.forEach(function (flight) {
                 $("#tblMyFlights").append("<tr><td>" + flight.Id + "</td>" + "<td>" + flight.ReaminingTime + "</td></tr>")
