@@ -5,20 +5,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="App_Data\**" />
+    <Compile Remove="App_Start\**" />
     <Compile Remove="wwwroot\lib\**" />
+    <Content Remove="App_Data\**" />
+    <Content Remove="App_Start\**" />
     <Content Remove="wwwroot\lib\**" />
+    <EmbeddedResource Remove="App_Data\**" />
+    <EmbeddedResource Remove="App_Start\**" />
     <EmbeddedResource Remove="wwwroot\lib\**" />
+    <None Remove="App_Data\**" />
+    <None Remove="App_Start\**" />
     <None Remove="wwwroot\lib\**" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="jquery" Version="3.5.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-    <Folder Include="App_Start\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
