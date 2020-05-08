@@ -7,8 +7,8 @@ namespace FlightControlWeb.Models
 {
     public interface IServersManager
     {
-        IEnumerable<Server> GetExternalServers();
-        void AddExternalServer(Server s);
-        void DeleteExternalServer(String id);
+        IEnumerable<Server> GetAllServers();
+        void AddServer(Server s);
+        void DeleteServer(String id);
     }
 }

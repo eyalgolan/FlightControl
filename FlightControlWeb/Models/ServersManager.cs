@@ -7,20 +7,38 @@ namespace FlightControlWeb.Models
 {
     public class ServersManager : IServersManager
     {
-        private static List<Server> servers = new List<Server>();
-        public void AddExternalServer(Server s)
+        private static List<Server> allServers = new List<Server>();
+
+        public IEnumerable<Server> GetAllServers()
         {
-            servers.Add(s);
+            return allServers;
         }
 
-        public void DeleteExternalServer(string id)
+        public Server GetServerByID(string id)
         {
-            throw new NotImplementedException();
+            Server tempS = allServers.Where(x => x.ServerID == id).FirstOrDefault();
+            if (tempS == null)
+            {
+                throw new Exception("Server not found.");
+            }
+
+            return tempS;
         }
 
-        public IEnumerable<Server> GetExternalServers()
+        public void AddServer(Server server)
         {
-            throw new NotImplementedException();
+            allServers.Add(server);
+        }
+
+        public void DeleteServer(string id)
+        {
+            Server tempS = allServers.Where(x => x.ServerID == id).FirstOrDefault();
+            if (tempS == null)
+            {
+                throw new Exception("Server not found.");
+            }
+
+            allServers.Remove(tempS);
         }
     }
 }
