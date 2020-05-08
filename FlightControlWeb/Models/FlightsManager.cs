@@ -1,38 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FlightControlWeb.Models
 {
     public class FlightsManager : IFlightsManager
     {
-        private static List<Flight> flights = new List<Flight>();
+        private static readonly FlightPlan fp = new FlightPlan(30, "s", new InitialLocation(50, 50, new DateTime()),
+            new List<Segment>());
 
-        public void AddFlightPlan(FlightPlan fp)
+        private static readonly FlightPlan fp1 = new FlightPlan(40, "a", new InitialLocation(10, 10, new DateTime()),
+            new List<Segment>());
+
+        private static readonly List<Flight> flights = new List<Flight>
         {
-            Flight newFlight = new Flight(fp);
+            new Flight(fp, false),
+            new Flight(fp1, false)
+        };
+
+        public void AddFlightPlan(FlightPlan fp, bool isExternalInput)
+        {
+            var newFlight = new Flight(fp, isExternalInput);
             flights.Add(newFlight);
         }
 
         public void DeleteFlight(Flight f)
         {
-            Flight toRemove = flights.Where(x => x.FlightId == f.FlightId).FirstOrDefault();
-            if (toRemove == null)
-            {
-                throw new Exception("flight not found");
-            }
+            var toRemove = flights.Where(x => x.FlightId == f.FlightId).FirstOrDefault();
+            if (toRemove == null) throw new Exception("flight not found");
             flights.Remove(toRemove);
         }
 
         public IEnumerable<Flight> GetAllFlights(string dt)
         {
-            throw new NotImplementedException();
+            return flights;
         }
 
-        public FlightPlan GetFlightById(int id)
+        public FlightPlan GetFlightById(string id)
         {
-            FlightPlan toReturn = flights.Where(x => x.FlightId == id).FirstOrDefault().Fp;
+            var toReturn = flights.Where(x => x.FlightId == id).FirstOrDefault().Fp;
+
+            if (toReturn == null) throw new Exception("Flight not found.");
             return toReturn;
         }
 

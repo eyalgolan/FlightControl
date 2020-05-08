@@ -27,7 +27,7 @@ namespace FlightControlWeb.Controllers
 
         // GET: api/Flights/5
         [HttpGet("{id}", Name = "Get")]
-        public FlightPlan Get(int id)
+        public FlightPlan Get(string id)
         {
             FlightPlan fp = this.flightManager.GetFlightById(id);
             return fp;
@@ -35,10 +35,10 @@ namespace FlightControlWeb.Controllers
 
         // POST: api/FlightPlan
         [HttpPost]
-        public FlightPlan PostFlightPlan(FlightPlan fp)
+        public FlightPlan PostFlightPlan(FlightPlan fp, bool isExternal)
         {
             // 
-            this.flightManager.AddFlightPlan(fp);
+            this.flightManager.AddFlightPlan(fp, isExternal);
             return fp;
         }
 

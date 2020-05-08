@@ -11,7 +11,7 @@ namespace FlightControlWeb.Models
         {
             flightPlan = fpInput;
             isExternal = isExternalInput;
-            FlightId = CreateID();
+            FlightId = CreateId();
         }
 
         public string FlightId { get; set; }
@@ -24,9 +24,9 @@ namespace FlightControlWeb.Models
         public bool IsExternal { get; set; }
         public FlightPlan Fp { get; set; }
 
-        private string CreateID()
+        private static string CreateId()
         {
-            var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             var rand = new Random();
 
             var id = "";

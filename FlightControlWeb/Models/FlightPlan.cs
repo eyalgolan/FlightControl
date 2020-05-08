@@ -1,20 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace FlightControlWeb.Models
 {
     public class FlightPlan
     {
+        public FlightPlan(int newPassenger, string newCompany, InitialLocation newLocation, IEnumerable<Segment> newSeg)
+        {
+            Passengers = newPassenger;
+            CompanyName = newCompany;
+            InitialLocation = newLocation;
+            Segments = newSeg;
+        }
+
         public int Passengers { get; set; }
-        public String CompanyName { get; set; }
-        public int initialLogtitude { get; set; }
-        public int initialLatitude { get; set; }
-        public int initialDateTime { get; set; }
 
-        public List<Segment> segments;
+        public string CompanyName { get; set; }
 
-        // todo add relavent fields
+        public InitialLocation InitialLocation { get; set; }
+
+        public IEnumerable<Segment> Segments { get; set; }
     }
 }

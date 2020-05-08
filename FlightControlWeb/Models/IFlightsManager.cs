@@ -9,8 +9,8 @@ namespace FlightControlWeb.Models
     {
         IEnumerable<Flight> GetServerFlights(String dt);
         IEnumerable<Flight> GetAllFlights(String dt);
-        void AddFlightPlan(FlightPlan fp);
-        FlightPlan GetFlightById(int id);
+        void AddFlightPlan(FlightPlan fp, bool isExternalInput);
+        FlightPlan GetFlightById(string id);
         void DeleteFlight(Flight f);
     }
 }
