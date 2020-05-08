@@ -12,7 +12,7 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class FlightsController : ControllerBase
     {
-        private IFlightsManager flightManager;
+        private IFlightsManager flightManager = new FlightsManager();
 
         public FlightsController(IFlightsManager fm)
         {
@@ -20,9 +20,10 @@ namespace FlightControlWeb.Controllers
         }
         // GET: api/Flights?relative_to=<DATE_TIME> api/Flights?relative_to=<DATE_TIME>&syc_all
         [HttpGet]
-        public IEnumerable<string> GetAllFlights()
+        public IEnumerable<Flight> GetAllFlights()
         {
-            return new string[] { "value1", "value2" };
+            string dt = "";
+            return flightManager.GetAllFlights(dt);
         }
 
         // GET: api/Flights/5
