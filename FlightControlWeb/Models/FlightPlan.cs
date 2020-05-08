@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace FlightControlWeb.Models
 {
@@ -13,12 +15,13 @@ namespace FlightControlWeb.Models
             Segments = newSeg;
         }
 
-        [Required] public int Passengers { get; set; }
 
-        [Required] public string CompanyName { get; set; }
+        public int Passengers { get; set; }
 
-        [Required] public InitialLocation InitialLocation { get; set; }
+        public string CompanyName { get; set; }
 
-        [Required] public IEnumerable<Segment> Segments { get; set; }
+        public InitialLocation InitialLocation { get; set; }
+
+        public IEnumerable<Segment> Segments { get; set; }
     }
 }

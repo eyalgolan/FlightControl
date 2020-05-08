@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlightControlWeb.Models
 {
+    [Table("FlightList")]
     public class Flight
     {
         private FlightPlan flightPlan;
@@ -11,25 +13,21 @@ namespace FlightControlWeb.Models
         public Flight(FlightPlan fpInput, bool isExternalInput)
         {
             flightPlan = fpInput;
+            Longtitude = fpInput.InitialLocation.Longtitude;
+            Latitude = fpInput.InitialLocation.Latitude;
             isExternal = isExternalInput;
             FlightId = CreateId();
         }
 
-        [Required] public string FlightId { get; set; }
+        public string FlightId { get; set; }
 
-        [Required] public double Longtitude { get; set; }
+        public double Longtitude { get; set; }
 
-        [Required] public double Latitude { get; set; }
+        public double Latitude { get; set; }
 
-        [Required] public int Passengers { get; set; }
+        public bool IsExternal { get; set; }
 
-        [Required] public string CompanyName { get; set; }
-
-        [Required] public string DateTime { get; set; }
-
-        [Required] public bool IsExternal { get; set; }
-
-        [Required] public FlightPlan Fp { get; set; }
+        public FlightPlan Fp { get; set; }
 
         private static string CreateId()
         {

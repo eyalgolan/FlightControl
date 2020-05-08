@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using FlightControlWeb;
 using FlightControlWeb.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightControlWeb
 {
