@@ -1,28 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using FlightControlWeb.Model;
 
 namespace FlightControlWeb.Models
 {
     public class ServersManager : IServersManager
     {
-        private static List<Server> allServers = new List<Server>();
+        private static readonly List<Server> allServers = new List<Server>();
 
         public IEnumerable<Server> GetAllServers()
         {
             return allServers;
-        }
-
-        public Server GetServerByID(string id)
-        {
-            Server tempS = allServers.Where(x => x.ServerID == id).FirstOrDefault();
-            if (tempS == null)
-            {
-                throw new Exception("Server not found.");
-            }
-
-            return tempS;
         }
 
         public void AddServer(Server server)
@@ -32,13 +21,18 @@ namespace FlightControlWeb.Models
 
         public void DeleteServer(string id)
         {
-            Server tempS = allServers.Where(x => x.ServerID == id).FirstOrDefault();
-            if (tempS == null)
-            {
-                throw new Exception("Server not found.");
-            }
+            var tempS = allServers.Where(x => x.ServerID == id).FirstOrDefault();
+            if (tempS == null) throw new Exception("Server not found.");
 
             allServers.Remove(tempS);
+        }
+
+        public Server GetServerByID(string id)
+        {
+            var tempS = allServers.Where(x => x.ServerID == id).FirstOrDefault();
+            if (tempS == null) throw new Exception("Server not found.");
+
+            return tempS;
         }
     }
 }

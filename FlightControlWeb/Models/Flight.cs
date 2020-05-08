@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace FlightControlWeb.Models
 {
@@ -14,15 +15,21 @@ namespace FlightControlWeb.Models
             FlightId = CreateId();
         }
 
-        public string FlightId { get; set; }
+        [Required] public string FlightId { get; set; }
 
-        public double Longtitude { get; set; }
-        public double Latitude { get; set; }
-        public int Passengers { get; set; }
-        public string CompanyName { get; set; }
-        public string DateTime { get; set; }
-        public bool IsExternal { get; set; }
-        public FlightPlan Fp { get; set; }
+        [Required] public double Longtitude { get; set; }
+
+        [Required] public double Latitude { get; set; }
+
+        [Required] public int Passengers { get; set; }
+
+        [Required] public string CompanyName { get; set; }
+
+        [Required] public string DateTime { get; set; }
+
+        [Required] public bool IsExternal { get; set; }
+
+        [Required] public FlightPlan Fp { get; set; }
 
         private static string CreateId()
         {

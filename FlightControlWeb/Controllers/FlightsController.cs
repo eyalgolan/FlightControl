@@ -23,13 +23,13 @@ namespace FlightControlWeb.Controllers
             return _flightManager.GetAllFlights(dt);
         }
 
-        // GET: api/Flights/5
-        [HttpGet("{id}", Name = "Get")]
-        public FlightPlan Get(string id)
-        {
-            var fp = _flightManager.GetFlightById(id);
-            return fp;
-        }
+        //// GET: api/Flights/5
+        //[HttpGet("{id}", Name = "Get")]
+        //public FlightPlan Get(string id)
+        //{
+        //    var fp = _flightManager.GetFlightById(id);
+        //    return fp;
+        //}
 
         // POST: api/FlightPlan
         [HttpPost]

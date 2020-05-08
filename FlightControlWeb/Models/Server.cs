@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace FlightControlWeb.Models
+namespace FlightControlWeb.Model
 {
     public class Server
     {
-        public String ServerID { get; set; }
-        public String ServerlUrl { get; set; }
+        public Server(int newID, string newURL)
+        {
+            ServerID = newID;
+            ServerURL = newURL;
+        }
+
+        [Required] public int ServerID { get; set; }
+
+        [Required] public string ServerURL { get; set; }
     }
 }

@@ -9,14 +9,14 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class FlightPlanController : ControllerBase
     {
-
         private readonly IFlightsManager _flightsManager = new FlightsManager();
 
-        // GET: api/FlightPlan
-        [HttpGet]
-        public IEnumerable<string> Get()
+        // GET: api/FlightPlan/5
+        [HttpGet("{id}", Name = "Get")]
+        public FlightPlan Get(string id)
         {
-            return new[] {"value1", "value2"};
+            var fp = _flightsManager.GetFlightById(id);
+            return fp;
         }
 
         // POST: api/FlightPlan
@@ -25,12 +25,12 @@ namespace FlightControlWeb.Controllers
         {
             // read file into a string and deserialize JSON to a type
             var flightPlan = JsonConvert.DeserializeObject<FlightPlan>(
-                System.IO.File.ReadAllText(@"D:\FlightControl\FlightControlWeb\wwwroot\json\FlightPlan.json"));
+                System.IO.File.ReadAllText("../wwwroot/json/FlightPlan.json"));
 
             FlightPlan flightPlan2;
             // deserialize JSON directly from a file
             using (var file =
-                System.IO.File.OpenText(@"D:\FlightControl\FlightControlWeb\wwwroot\json\FlightPlan.json"))
+                System.IO.File.OpenText("../wwwroot/json/FlightPlan.json"))
             {
                 var serializer = new JsonSerializer();
                 flightPlan2 = (FlightPlan) serializer.Deserialize(file, typeof(FlightPlan));
