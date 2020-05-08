@@ -4,10 +4,6 @@ namespace FlightControlWeb.Model
 {
     public class Server
     {
-        public Server()
-        {
-
-        }
         public Server(string newID, string newURL)
         {
             ServerID = newID;
