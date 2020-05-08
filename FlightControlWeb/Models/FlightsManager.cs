@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,6 +19,7 @@ namespace FlightControlWeb.Models
             new Flight(fp1, false)
         };
 
+        private ConcurrentDictionary<int, FlightPlan> flightPlanDictionary = new ConcurrentDictionary<int, FlightPlan>();
         public void AddFlightPlan(FlightPlan fp, bool isExternalInput)
         {
             var newFlight = new Flight(fp, isExternalInput);

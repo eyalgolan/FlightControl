@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlightControlWeb.Models
 {
-    [Table("FlightList")]
     public class Flight
     {
         private FlightPlan flightPlan;
