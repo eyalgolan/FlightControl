@@ -1,23 +1,12 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FlightControlWeb.Models
 {
     public class Flight
     {
-        private FlightPlan flightPlan;
-        private bool isExternal;
-
-        public Flight(FlightPlan fpInput, bool isExternalInput)
-        {
-            flightPlan = fpInput;
-            Longtitude = fpInput.InitialLocation.Longtitude;
-            Latitude = fpInput.InitialLocation.Latitude;
-            isExternal = isExternalInput;
-            FlightId = CreateId();
-        }
-
         public string FlightId { get; set; }
 
         public double Longtitude { get; set; }
@@ -26,7 +15,7 @@ namespace FlightControlWeb.Models
 
         public bool IsExternal { get; set; }
 
-        public FlightPlan Fp { get; set; }
+        //public FlightPlan Fp { get; set; }
 
         private static string CreateId()
         {

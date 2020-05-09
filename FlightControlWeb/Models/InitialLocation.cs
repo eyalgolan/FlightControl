@@ -1,17 +1,12 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FlightControlWeb.Models
 {
     public class InitialLocation
     {
-        public InitialLocation(double newLong, double newLat, DateTime newDate)
-        {
-            Longtitude = newLong;
-            Latitude = newLat;
-            DateTime = newDate;
-        }
-
         public double Longtitude { get; set; }
 
         public double Latitude { get; set; }

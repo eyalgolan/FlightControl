@@ -11,48 +11,48 @@ namespace FlightControlWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FlightsController : ControllerBase
+    public class ServersController : ControllerBase
     {
-        private readonly FlightContext _context;
+        private readonly ServerContext _context;
 
-        public FlightsController(FlightContext context)
+        public ServersController(ServerContext context)
         {
             _context = context;
         }
 
-        // GET: api/Flights
+        // GET: api/Servers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Flight>>> GetTodoItems()
+        public async Task<ActionResult<IEnumerable<Server>>> GetTodoItems()
         {
             return await _context.TodoItems.ToListAsync();
         }
 
-        // GET: api/Flights/5
+        // GET: api/Servers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Flight>> GetFlight(string id)
+        public async Task<ActionResult<Server>> GetServer(string id)
         {
-            var flight = await _context.TodoItems.FindAsync(id);
+            var server = await _context.TodoItems.FindAsync(id);
 
-            if (flight == null)
+            if (server == null)
             {
                 return NotFound();
             }
 
-            return flight;
+            return server;
         }
 
-        // PUT: api/Flights/5
+        // PUT: api/Servers/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFlight(string id, Flight flight)
+        public async Task<IActionResult> PutServer(string id, Server server)
         {
-            if (id != flight.FlightId)
+            if (id != server.ServerID)
             {
                 return BadRequest();
             }
 
-            _context.Entry(flight).State = EntityState.Modified;
+            _context.Entry(server).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace FlightControlWeb.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!FlightExists(id))
+                if (!ServerExists(id))
                 {
                     return NotFound();
                 }
@@ -73,20 +73,20 @@ namespace FlightControlWeb.Controllers
             return NoContent();
         }
 
-        // POST: api/Flights
+        // POST: api/Servers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Flight>> PostFlight(Flight flight)
+        public async Task<ActionResult<Server>> PostServer(Server server)
         {
-            _context.TodoItems.Add(flight);
+            _context.TodoItems.Add(server);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (FlightExists(flight.FlightId))
+                if (ServerExists(server.ServerID))
                 {
                     return Conflict();
                 }
@@ -96,28 +96,28 @@ namespace FlightControlWeb.Controllers
                 }
             }
 
-            return CreatedAtAction("GetFlight", new { id = flight.FlightId }, flight);
+            return CreatedAtAction("GetServer", new { id = server.ServerID }, server);
         }
 
-        // DELETE: api/Flights/5
+        // DELETE: api/Servers/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Flight>> DeleteFlight(string id)
+        public async Task<ActionResult<Server>> DeleteServer(string id)
         {
-            var flight = await _context.TodoItems.FindAsync(id);
-            if (flight == null)
+            var server = await _context.TodoItems.FindAsync(id);
+            if (server == null)
             {
                 return NotFound();
             }
 
-            _context.TodoItems.Remove(flight);
+            _context.TodoItems.Remove(server);
             await _context.SaveChangesAsync();
 
-            return flight;
+            return server;
         }
 
-        private bool FlightExists(string id)
+        private bool ServerExists(string id)
         {
-            return _context.TodoItems.Any(e => e.FlightId == id);
+            return _context.TodoItems.Any(e => e.ServerID == id);
         }
     }
 }

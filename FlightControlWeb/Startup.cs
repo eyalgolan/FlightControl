@@ -28,8 +28,13 @@ namespace FlightControlWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<FlightContext>(opt =>
+                opt.UseInMemoryDatabase("FlightList"));
+            services.AddDbContext<FlightPlanContext>(opt =>
+                opt.UseInMemoryDatabase("FlightPlanList"));
+            services.AddDbContext<ServerContext>(opt =>
+                opt.UseInMemoryDatabase("ServerList"));
             services.AddControllers();
-            services.AddScoped<IFlightsManager, FlightsManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,10 +44,6 @@ namespace FlightControlWeb
             {
                 app.UseDeveloperExceptionPage();
             }
-            //else
-            //{
-            //    app.UseHsts();
-            //}
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();

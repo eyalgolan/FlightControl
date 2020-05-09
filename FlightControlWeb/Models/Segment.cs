@@ -8,17 +8,7 @@ namespace FlightControlWeb.Models
 {
     public class Segment
     {
-        private string longtitude;
-        private string latitude;
-        private string timespanSeconds;
-
-        public Segment(string longtitudeInput, string latitudeInput, string timespanSecondsInput)
-        {
-            this.longtitude = longtitudeInput;
-            this.latitude = latitudeInput;
-            this.timespanSeconds = timespanSecondsInput;
-        }
-
+        [Key] public string FlightId { get; set; }
         public string Longtitude { get; set; }
         public string Latitude { get; set; }
         public string TimeSpanSeconds { get; set; }
