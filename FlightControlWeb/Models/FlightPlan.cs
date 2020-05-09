@@ -9,9 +9,7 @@ namespace FlightControlWeb.Models
         public int Passengers { get; set; }
         public string CompanyName { get; set; }
 
-        public string InitialLongtitude { get; set; }
-
-        public string InitialLatitude { get; set; }
+        public InitialLocation InitLocation { get; set; }
 
         public IEnumerable<Segment> Segments { get; set; }
     }

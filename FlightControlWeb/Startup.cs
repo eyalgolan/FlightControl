@@ -24,6 +24,10 @@ namespace FlightControlWeb
                 opt.UseInMemoryDatabase("FlightList"));
             services.AddDbContext<FlightPlanContext>(opt =>
                 opt.UseInMemoryDatabase("FlightPlanList"));
+            services.AddDbContext<InitialLocationContext>(opt =>
+                opt.UseInMemoryDatabase("InitialLocationList"));
+            services.AddDbContext<SegmentContext>(opt =>
+                opt.UseInMemoryDatabase("SegmentList"));
             services.AddDbContext<ServerContext>(opt =>
                 opt.UseInMemoryDatabase("ServerList"));
             services.AddControllers();
