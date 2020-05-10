@@ -9,6 +9,6 @@ namespace FlightControlWeb.Models
         {
         }
 
-        public DbSet<Flight> TodoItems { get; set; }
+        public DbSet<Flight> FlightItems { get; set; }
     }
 }

@@ -1,16 +1,13 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace FlightControlWeb.Models
 {
     public class Flight
     {
-        public string FlightId { get; set; }
+        [Key] public string FlightId { get; set; }
 
-        public double Longtitude { get; set; }
-
-        public double Latitude { get; set; }
-
-        public bool IsExternal { get; set; }
+        [Required] public bool IsExternal { get; set; }
 
         //public FlightPlan Fp { get; set; }
 
