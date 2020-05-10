@@ -54,35 +54,38 @@ namespace FlightControlWeb.Controllers
         public async Task<ActionResult<FlightPlan>> PostFlightPlan([FromBody] JsonElement body)
         {
 
-            int passengers = body.GetProperty("passengers").GetInt32();
-            string companyName = body.GetProperty("company_name").GetString();
-            double longitude = body.GetProperty("initial_location").GetProperty("longitude").GetDouble();
-            double latitude = body.GetProperty("initial_location").GetProperty("latitude").GetDouble();
-            DateTime dateTime = body.GetProperty("initial_location").GetProperty("date_time").GetDateTime();
+            string input = body.ToString();
+            dynamic bodyObj = JsonConvert.DeserializeObject(input);
+
+            int passengers = bodyObj["passengers"];
+            string companyName = bodyObj["company_name"];
+            double longitude = bodyObj["initial_location"]["longitude"];
+            double latitude = bodyObj["initial_location"]["latitude"];
+            DateTime dateTime = bodyObj["initial_location"]["date_time"];
 
             Flight newFlight = new Flight();
             _flightManager.CreateId(newFlight);
-            newFlight.IsExternal = false;
             _flightContext.FlightItems.Add(newFlight);
 
-            FlightPlan newFlightPlan = new FlightPlan();
-            newFlightPlan.FlightId = newFlight.FlightId;
-            _flightPlanManager.CreateId(newFlightPlan);
+            FlightPlan newFlightPlan = new FlightPlan
+            {
+                FlightId = newFlight.FlightId,
+                isExternal = false
+            };
+            //_flightPlanManager.CreateId(newFlightPlan);
             newFlightPlan.Passengers = passengers;
             newFlightPlan.CompanyName = companyName;
             _flightContext.FlightPlanItems.Add(newFlightPlan);
 
             InitialLocation newInitialLocation = new InitialLocation();
-            _flightPlanManager.CreateId(newInitialLocation);
+            //_flightPlanManager.CreateId(newInitialLocation);
             newInitialLocation.Latitude = latitude;
             newInitialLocation.Longitude = longitude;
             newInitialLocation.DateTime = dateTime;
             newInitialLocation.FlightPlanId = newFlightPlan.Id;
             _flightContext.InitialLocationItems.Add(newInitialLocation);
 
-            JsonElement segments = body.GetProperty("segments");
-            string segmentString = segments.ToString();
-            dynamic segmentsObj = JsonConvert.DeserializeObject(segmentString);
+            dynamic segmentsObj = bodyObj["segments"];
             foreach (var segment in segmentsObj)
             {
                 Segment newSegment = new Segment();
