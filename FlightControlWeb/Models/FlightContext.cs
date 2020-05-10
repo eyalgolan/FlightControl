@@ -10,5 +10,8 @@ namespace FlightControlWeb.Models
         }
 
         public DbSet<Flight> FlightItems { get; set; }
+        public DbSet<FlightPlan> FlightPlanItems { get; set; }
+        public DbSet<InitialLocation> InitialLocationItems { get; set; }
+        public DbSet<Segment> SegmentItems { get; set; }
     }
 }

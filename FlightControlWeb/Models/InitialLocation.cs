@@ -13,5 +13,6 @@ namespace FlightControlWeb.Models
         public double Latitude { get; set; }
 
         public DateTime DateTime { get; set; }
+
     }
 }

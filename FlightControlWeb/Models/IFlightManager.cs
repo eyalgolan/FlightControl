@@ -7,10 +7,12 @@ namespace FlightControlWeb.Models
 {
     public interface IFlightManager
     {
-        IEnumerable<Flight> GetServerFlights(string dt);
-        IEnumerable<Flight> GetAllFlights(string dt);
-        void AddFlightPlan(FlightPlan fp, bool isExternalInput);
-        FlightPlan GetFlightById(string id);
-        void DeleteFlight(Flight f);
+        public IEnumerable<Flight> GetServerFlights(string dt);
+        public IEnumerable<Flight> GetAllFlights(string dt);
+        public void AddFlightPlan(FlightPlan fp, bool isExternalInput);
+        public FlightPlan GetFlightById(string id);
+        public void DeleteFlight(Flight f);
+
+        public void CreateId(Flight newFlight);
     }
 }
