@@ -58,7 +58,7 @@ namespace FlightControlWeb.Controllers
             string companyName = body.GetProperty("company_name").GetString();
             double longitude = body.GetProperty("initial_location").GetProperty("longitude").GetDouble();
             double latitude = body.GetProperty("initial_location").GetProperty("latitude").GetDouble();
-            //DateTime dateTime = body.GetProperty("date_time").GetDateTime();
+            DateTime dateTime = body.GetProperty("initial_location").GetProperty("date_time").GetDateTime();
 
             Flight newFlight = new Flight();
             _flightManager.CreateId(newFlight);
@@ -76,7 +76,7 @@ namespace FlightControlWeb.Controllers
             _flightPlanManager.CreateId(newInitialLocation);
             newInitialLocation.Latitude = latitude;
             newInitialLocation.Longitude = longitude;
-            //newInitialLocation.DateTime = dateTime;
+            newInitialLocation.DateTime = dateTime;
             newInitialLocation.FlightPlanId = newFlightPlan.Id;
             _flightContext.InitialLocationItems.Add(newInitialLocation);
 
