@@ -77,22 +77,26 @@ namespace FlightControlWeb.Controllers
             newFlightPlan.CompanyName = companyName;
             _flightContext.FlightPlanItems.Add(newFlightPlan);
 
-            InitialLocation newInitialLocation = new InitialLocation();
-            //_flightPlanManager.CreateId(newInitialLocation);
-            newInitialLocation.Latitude = latitude;
-            newInitialLocation.Longitude = longitude;
-            newInitialLocation.DateTime = dateTime;
-            newInitialLocation.FlightPlanId = newFlightPlan.Id;
+            InitialLocation newInitialLocation = new InitialLocation
+            {
+                //_flightPlanManager.CreateId(newInitialLocation);
+                Latitude = latitude,
+                Longitude = longitude,
+                DateTime = dateTime,
+                FlightPlanId = newFlightPlan.Id
+            };
             _flightContext.InitialLocationItems.Add(newInitialLocation);
 
             dynamic segmentsObj = bodyObj["segments"];
             foreach (var segment in segmentsObj)
             {
-                Segment newSegment = new Segment();
-                newSegment.Longitude = segment["longitude"];
-                newSegment.Latitude = segment["latitude"];
-                newSegment.TimeSpanSeconds = segment["timespan_seconds"];
-                newSegment.FlightPlanId = newFlightPlan.Id;
+                Segment newSegment = new Segment
+                {
+                    Longitude = segment["longitude"],
+                    Latitude = segment["latitude"],
+                    TimeSpanSeconds = segment["timespan_seconds"],
+                    FlightPlanId = newFlightPlan.Id
+                };
                 _flightContext.SegmentItems.Add(newSegment);
             }
 
