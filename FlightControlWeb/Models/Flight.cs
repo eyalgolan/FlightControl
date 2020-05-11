@@ -7,10 +7,8 @@ namespace FlightControlWeb.Models
     {
         [Key] public int Id { get; set; }
         [Required] public string FlightId { get; set; }
-
         [Required] public bool IsExternal { get; set; }
 
-        //public FlightPlan Fp { get; set; }
 
         private static string CreateId()
         {
