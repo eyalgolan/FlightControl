@@ -5,7 +5,8 @@ namespace FlightControlWeb.Models
 {
     public class Flight
     {
-        [Key] public string FlightId { get; set; }
+        [Key] public int Id { get; set; }
+        [Required] public string FlightId { get; set; }
 
         [Required] public bool IsExternal { get; set; }
 
