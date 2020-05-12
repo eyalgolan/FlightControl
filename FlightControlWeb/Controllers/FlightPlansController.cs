@@ -37,7 +37,7 @@ namespace FlightControlWeb.Controllers
         {
             IEnumerable<FlightPlan> allFlightPlans = await _flightContext.FlightPlanItems.ToListAsync();
 
-            var flightPlan = _flightPlanManager.GetFlightPlanByFlightId(allFlightPlans, id);
+            var flightPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
 
             if (flightPlan == null)
             {
