@@ -29,12 +29,16 @@ namespace FlightControlWeb.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Flight>> DeleteFlight(string id)
         {
-            var flight = await _context.FlightItems.FindAsync(id);
+            //var flight = await _context.FlightItems.FindAsync(id);
+            //await db.Foos.Where(x => x.UserId == userId).ToListAsync();
+            var flight = await _context.FlightItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
             if (flight == null)
             {
                 return NotFound();
             }
 
+            var flightPlan = await _context.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
+            _context.FlightPlanItems.Remove(flightPlan);
             _context.FlightItems.Remove(flight);
             await _context.SaveChangesAsync();
 

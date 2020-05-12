@@ -17,7 +17,7 @@ using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace FlightControlWeb.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/FlightPlan")]
     [ApiController]
     public class FlightPlansController : ControllerBase
     {
