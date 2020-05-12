@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using FlightControlWeb.Models;
 
 namespace FlightControlWeb.Controllers
@@ -12,41 +11,43 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class FlightsController : ControllerBase
     {
-        private IFlightsManager flightManager;
+        private readonly FlightContext _context;
 
-        public FlightsController(IFlightsManager fm)
+        public FlightsController(FlightContext context)
         {
-            this.flightManager = fm;
+            _context = context;
         }
-        // GET: api/Flights?relative_to=<DATE_TIME> api/Flights?relative_to=<DATE_TIME>&syc_all
+
+        // GET: api/Flights
         [HttpGet]
-        public IEnumerable<string> GetAllFlights()
+        public async Task<ActionResult<IEnumerable<Flight>>> GetTodoItems()
         {
-            return new string[] { "value1", "value2" };
+            return await _context.FlightItems.ToListAsync();
         }
 
-        // GET: api/Flights/5
-        [HttpGet("{id}", Name = "Get")]
-        public FlightPlan Get(int id)
-        {
-            FlightPlan fp = this.flightManager.GetFlightById(id);
-            return fp;
-        }
-
-        // POST: api/FlightPlan
-        [HttpPost]
-        public FlightPlan PostFlightPlan(FlightPlan fp)
-        {
-            // 
-            this.flightManager.AddFlightPlan(fp);
-            return fp;
-        }
-
-        // DELETE: api/ApiWithActions/5
-        // we want DELETE: /api/Flights/{id}
+        // DELETE: api/Flights/5
         [HttpDelete("{id}")]
-        public void DeleteFlightById(int id)
+        public async Task<ActionResult<Flight>> DeleteFlight(string id)
         {
+            //var flight = await _context.FlightItems.FindAsync(id);
+            //await db.Foos.Where(x => x.UserId == userId).ToListAsync();
+            var flight = await _context.FlightItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
+            if (flight == null)
+            {
+                return NotFound();
+            }
+
+            var flightPlan = await _context.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
+            _context.FlightPlanItems.Remove(flightPlan);
+            _context.FlightItems.Remove(flight);
+            await _context.SaveChangesAsync();
+
+            return flight;
+        }
+
+        private bool FlightExists(string id)
+        {
+            return _context.FlightItems.Any(e => e.FlightId == id);
         }
     }
 }
