@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FlightControlWeb.Models;
 
 namespace FlightControlWeb.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Flights")]
     [ApiController]
     public class FlightsController : ControllerBase
     {
@@ -20,9 +21,29 @@ namespace FlightControlWeb.Controllers
 
         // GET: api/Flights
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Flight>>> GetTodoItems()
+        public async Task<IEnumerable<Flight>> GetFlights([FromQuery] DateTime relative_to)
         {
-            return await _context.FlightItems.ToListAsync();
+            IEnumerable<InitialLocation> relaventInitials =
+                await _context.InitialLocationItems.Where(x => x.DateTime < relative_to).ToListAsync();
+            IEnumerable<FlightPlan> relaventPlans = new List<FlightPlan>();
+            foreach (var initial in relaventInitials)
+            {
+                int segmentFlightPlanId = initial.FlightPlanId;
+                var relaventPlan = await _context.FlightPlanItems.Where(x => x.Id == segmentFlightPlanId)
+                    .FirstOrDefaultAsync();
+                if (relaventPlan != null) relaventPlans.Append(relaventPlan);
+            }
+
+            IEnumerable<Flight> relaventFlights = new List<Flight>();
+            foreach (var plan in relaventPlans)
+                if (plan.EndTime > relative_to)
+                {
+                    var relaventFlight = await _context.FlightItems.Where(x => x.FlightId == plan.FlightId)
+                        .FirstOrDefaultAsync();
+                    if (relaventFlight != null) relaventFlights.Append(relaventFlight);
+                }
+
+            return relaventFlights;
         }
 
         // DELETE: api/Flights/5
@@ -32,10 +53,7 @@ namespace FlightControlWeb.Controllers
             //var flight = await _context.FlightItems.FindAsync(id);
             //await db.Foos.Where(x => x.UserId == userId).ToListAsync();
             var flight = await _context.FlightItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
-            if (flight == null)
-            {
-                return NotFound();
-            }
+            if (flight == null) return NotFound();
 
             var flightPlan = await _context.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
             _context.FlightPlanItems.Remove(flightPlan);

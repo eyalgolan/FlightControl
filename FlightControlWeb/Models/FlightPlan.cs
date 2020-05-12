@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,8 +11,8 @@ namespace FlightControlWeb.Models
         [ForeignKey("Flight")] public string FlightId { get; set; }
         [Required] public int Passengers { get; set; }
         [Required] public string CompanyName { get; set; }
-
-        [Required] public bool isExternal { get; set; }
+        [Required] public bool IsExternal { get; set; }
+        public DateTime EndTime { get; set; }
 
         //public InitialLocation InitLocation { get; set; }
         //public IEnumerable<Segment> Segments { get; set; }

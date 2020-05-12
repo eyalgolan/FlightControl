@@ -8,11 +8,9 @@ namespace FlightControlWeb.Models
     {
         [Key] public int Id { get; set; }
         [ForeignKey("FlightPlan")] public int FlightPlanId { get; set; }
-        public double Longitude { get; set; }
-
-        public double Latitude { get; set; }
-
-        public DateTime DateTime { get; set; }
+        [Required] public double Longitude { get; set; }
+        [Required] public double Latitude { get; set; }
+        [Required] public DateTime DateTime { get; set; }
 
     }
 }

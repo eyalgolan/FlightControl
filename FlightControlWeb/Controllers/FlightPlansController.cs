@@ -70,7 +70,7 @@ namespace FlightControlWeb.Controllers
             FlightPlan newFlightPlan = new FlightPlan
             {
                 FlightId = newFlight.FlightId,
-                isExternal = false
+                IsExternal = false
             };
             //_flightPlanManager.CreateId(newFlightPlan);
             newFlightPlan.Passengers = passengers;
@@ -88,17 +88,27 @@ namespace FlightControlWeb.Controllers
             _flightContext.InitialLocationItems.Add(newInitialLocation);
 
             dynamic segmentsObj = bodyObj["segments"];
+            DateTime start = dateTime;
+            DateTime end = start;
             foreach (var segment in segmentsObj)
             {
+                double timespan = segment["timespan_seconds"];
+                end = start.AddSeconds(timespan);
                 Segment newSegment = new Segment
                 {
                     Longitude = segment["longitude"],
                     Latitude = segment["latitude"],
                     TimeSpanSeconds = segment["timespan_seconds"],
-                    FlightPlanId = newFlightPlan.Id
+                    FlightPlanId = newFlightPlan.Id,
+                    StartTime = start,
+                    EndTime = end
                 };
+                start = end; 
                 _flightContext.SegmentItems.Add(newSegment);
             }
+
+            newFlightPlan.EndTime = end;
+            await _flightContext.SaveChangesAsync();
 
 
             try
