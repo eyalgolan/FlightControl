@@ -33,6 +33,7 @@ namespace FlightControlWeb.Controllers
         [HttpGet]
         public async Task<IEnumerable<Flight>> GetFlights([FromQuery] DateTime relative_to)
         {
+            relative_to = relative_to.ToUniversalTime();
             IEnumerable<InitialLocation> relaventInitials =
                 await _context.InitialLocationItems.Where(x => x.DateTime < relative_to).ToListAsync();
             IEnumerable<FlightPlan> relaventPlans = Enumerable.Empty<FlightPlan>();
@@ -47,7 +48,7 @@ namespace FlightControlWeb.Controllers
             foreach (var plan in relaventPlans)
                 if (plan.EndTime > relative_to)
                 {
-                    var relaventFlight = await _context.FlightItems.FindAsync(plan.FlightId);
+                    var relaventFlight = await _context.FlightItems.Where(x=>x.FlightId == plan.FlightId).FirstOrDefaultAsync();
                     if (relaventFlight != null) relaventFlights = relaventFlights.Append(relaventFlight);
                 }
 
