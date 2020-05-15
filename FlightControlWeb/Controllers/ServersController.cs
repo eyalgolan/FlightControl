@@ -20,7 +20,7 @@ namespace FlightControlWeb.Controllers
 
         // GET: api/Servers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Server>>> GetTodoItems()
+        public async Task<ActionResult<IEnumerable<Server>>> GetAllServers()
         {
             return await _context.TodoItems.ToListAsync();
         }

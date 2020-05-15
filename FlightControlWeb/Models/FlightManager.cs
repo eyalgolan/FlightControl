@@ -34,7 +34,7 @@ namespace FlightControlWeb.Models
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Flight> GetAllFlights(string dt)
+        public IEnumerable<Flight> GetAllFlights(DateTime dt)
         {
             throw new NotImplementedException();
         }

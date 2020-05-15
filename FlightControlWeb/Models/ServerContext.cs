@@ -14,6 +14,6 @@ namespace FlightControlWeb.Models
 
         }
 
-        public DbSet<Server> TodoItems { get; set; }
+        public DbSet<Server> serverItems { get; set; }
     }
 }
