@@ -56,7 +56,14 @@ namespace FlightControlWeb.Controllers
                 if (plan.EndTime > relative_to)
                 {
                     var relaventFlight = await _flightContext.FlightItems.Where(x=>x.FlightId == plan.FlightId).FirstOrDefaultAsync();
-                    if (relaventFlight != null) relaventFlights = relaventFlights.Append(relaventFlight);
+                    if (relaventFlight != null)
+                    {
+                        relaventFlight.CurrentLatitude = _flightManager.GetFlightLatitude(relaventFlight);
+                        relaventFlight.CurrentLongitude = _flightManager.GetFlightLongitude(relaventFlight);
+                        relaventFlight.CompanyName = plan.CompanyName;
+                        relaventFlight.CurrentDateTime = relative_to;
+                        relaventFlights = relaventFlights.Append(relaventFlight);
+                    }
                 }
 
             //todo need to check this works
@@ -65,7 +72,7 @@ namespace FlightControlWeb.Controllers
                 IEnumerable<Server> servers = _flightContext.Set<Server>();
                 foreach (var server in servers)
                 {
-                    string _apiUrl = server.ServerURL + "//api/flights?relative_to=" + relative_to;
+                    string _apiUrl = server.ServerURL + "/api/flights?relative_to=" + relative_to;
                     string _baseAddress = server.ServerURL;
                     using (var client = new HttpClient())
                     {

@@ -14,5 +14,9 @@ namespace FlightControlWeb.Models
         public void DeleteFlight(Flight f);
 
         public void CreateId(Flight newFlight);
+
+        public double GetFlightLatitude(Flight f);
+
+        public double GetFlightLongitude(Flight f);
     }
 }

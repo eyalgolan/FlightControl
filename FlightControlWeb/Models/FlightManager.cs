@@ -48,5 +48,15 @@ namespace FlightControlWeb.Models
         {
             throw new NotImplementedException();
         }
+
+        public double GetFlightLatitude(Flight f)
+        {
+            throw new NotImplementedException();
+        }
+
+        public double GetFlightLongitude(Flight f)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
