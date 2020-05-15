@@ -21,7 +21,7 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class FlightPlansController : ControllerBase
     {
-        private readonly FlightContext _flightContext;
+        private readonly IDataContext _flightContext;
         private readonly IFlightPlanManager _flightPlanManager;
         private readonly IFlightManager _flightManager;
         public FlightPlansController(FlightContext flightContext)

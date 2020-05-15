@@ -1,22 +1,21 @@
-﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlightControlWeb.Models
 {
-    public class FlightContext : DbContext, IDataContext
+    interface IDataContext
     {
-        public FlightContext(DbContextOptions<FlightContext> options)
-            : base(options)
-        {
-        }
-
+        //DbSet<TEntity> Set<TEntity>() where TEntity : class;
+        //Task<int> SaveChangesAsync();
 
         public DbSet<Flight> FlightItems { get; set; }
         public DbSet<FlightPlan> FlightPlanItems { get; set; }
         public DbSet<InitialLocation> InitialLocationItems { get; set; }
         public DbSet<Segment> SegmentItems { get; set; }
 
-        public Task SaveChangesAsync() => base.SaveChangesAsync();
+        Task SaveChangesAsync();
     }
 }

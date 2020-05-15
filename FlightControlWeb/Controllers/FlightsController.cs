@@ -19,33 +19,41 @@ namespace FlightControlWeb.Controllers
             _context = context;
         }
 
+        /*
+        // GET: api/Flights/
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Segment>>> GetTodoItems()
+        {
+            return await _context.SegmentItems.ToListAsync();
+        }
+        */
+
+        
         // GET: api/Flights
         [HttpGet]
         public async Task<IEnumerable<Flight>> GetFlights([FromQuery] DateTime relative_to)
         {
             IEnumerable<InitialLocation> relaventInitials =
                 await _context.InitialLocationItems.Where(x => x.DateTime < relative_to).ToListAsync();
-            IEnumerable<FlightPlan> relaventPlans = new List<FlightPlan>();
+            IEnumerable<FlightPlan> relaventPlans = Enumerable.Empty<FlightPlan>();
             foreach (var initial in relaventInitials)
             {
                 int segmentFlightPlanId = initial.FlightPlanId;
-                var relaventPlan = await _context.FlightPlanItems.Where(x => x.Id == segmentFlightPlanId)
-                    .FirstOrDefaultAsync();
-                if (relaventPlan != null) relaventPlans.Append(relaventPlan);
+                var relaventPlan = await _context.FlightPlanItems.FindAsync(segmentFlightPlanId);
+                if (relaventPlan != null) relaventPlans = relaventPlans.Append(relaventPlan);
             }
 
             IEnumerable<Flight> relaventFlights = new List<Flight>();
             foreach (var plan in relaventPlans)
                 if (plan.EndTime > relative_to)
                 {
-                    var relaventFlight = await _context.FlightItems.Where(x => x.FlightId == plan.FlightId)
-                        .FirstOrDefaultAsync();
-                    if (relaventFlight != null) relaventFlights.Append(relaventFlight);
+                    var relaventFlight = await _context.FlightItems.FindAsync(plan.FlightId);
+                    if (relaventFlight != null) relaventFlights = relaventFlights.Append(relaventFlight);
                 }
 
             return relaventFlights;
         }
-
+        
         // DELETE: api/Flights/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Flight>> DeleteFlight(string id)
