@@ -62,6 +62,7 @@ namespace FlightControlWeb.Controllers
                         var currentPlan = await _flightContext.FlightPlanItems.Where(x=>x.FlightId == relaventFlight.FlightId).FirstOrDefaultAsync();
                         var currentInitial = await _flightContext.InitialLocationItems
                             .Where(x => x.FlightPlanId == currentPlan.Id).FirstOrDefaultAsync();
+                        // (the universal time) - (this fligt start) = how much seconds passed since the flight started
                         int secondsInFlight = (relative_to - currentInitial.DateTime).Seconds;
                         IEnumerable<Segment> planSegments = await _flightContext.SegmentItems
                             .Where(x => x.FlightPlanId == currentPlan.Id).ToListAsync();
@@ -79,6 +80,8 @@ namespace FlightControlWeb.Controllers
                         }
                         foreach (KeyValuePair<int,Segment> k in planSegmentDict)
                         {
+                            // if the seconds that passed since the beginning of the flight are greater 
+                            // than this segment's duration
                             if (secondsInFlight > k.Value.TimeSpanSeconds)
                             {
                                 secondsInFlight -= k.Value.TimeSpanSeconds;
