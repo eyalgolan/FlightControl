@@ -91,7 +91,7 @@ namespace FlightControlWeb.Controllers
                                 int secondsInSegment = k.Value.TimeSpanSeconds - secondsInFlight;
                                 double lastLatitude;
                                 double lastLongitude;
-                                if (k.Key == 1)
+                                if (k.Key == 0)
                                 {
                                     lastLongitude = currentInitial.Longitude;
                                     lastLatitude = currentInitial.Latitude;
