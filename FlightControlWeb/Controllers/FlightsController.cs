@@ -62,16 +62,21 @@ namespace FlightControlWeb.Controllers
                         var currentPlan = await _flightContext.FlightPlanItems.Where(x=>x.FlightId == relaventFlight.FlightId).FirstOrDefaultAsync();
                         var currentInitial = await _flightContext.InitialLocationItems
                             .Where(x => x.FlightPlanId == currentPlan.Id).FirstOrDefaultAsync();
-                        int secondsInFlight = (currentInitial.DateTime - relative_to).Seconds;
+                        int secondsInFlight = (relative_to - currentInitial.DateTime).Seconds;
                         IEnumerable<Segment> planSegments = await _flightContext.SegmentItems
                             .Where(x => x.FlightPlanId == currentPlan.Id).ToListAsync();
-                        Dictionary<int,Segment> planSegmentDict = new Dictionary<int, Segment>();
+                        SortedDictionary<int,Segment> planSegmentDict = new SortedDictionary<int, Segment>();
+                        int index = 0;
                         foreach (var planSegment in planSegments)
                         {
-                            planSegmentDict.Add(planSegment.Id,planSegment);
+                            planSegmentDict.Add(index,planSegment);
+                            index++;
                         }
 
-                        planSegmentDict.OrderBy(x => x.Key);
+                        foreach (KeyValuePair<int, Segment> k in planSegmentDict)
+                        {
+                            Console.WriteLine("key {0}", k.Key);
+                        }
                         foreach (KeyValuePair<int,Segment> k in planSegmentDict)
                         {
                             if (secondsInFlight > k.Value.TimeSpanSeconds)
@@ -97,6 +102,7 @@ namespace FlightControlWeb.Controllers
 
                                 relaventFlight.CurrentLatitude = ((double)secondsInSegment/k.Value.TimeSpanSeconds) * (k.Value.Latitude - lastLatitude);
                                 relaventFlight.CurrentLongitude = ((double)secondsInSegment / k.Value.TimeSpanSeconds) * (k.Value.Longitude - lastLongitude);
+                                planSegmentDict.Clear();
                                 break;
                             }
                         }
