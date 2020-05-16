@@ -58,8 +58,8 @@ namespace FlightControlWeb.Controllers
                     var relaventFlight = await _flightContext.FlightItems.Where(x=>x.FlightId == plan.FlightId).FirstOrDefaultAsync();
                     if (relaventFlight != null)
                     {
-                        relaventFlight.CurrentLatitude = _flightManager.GetFlightLatitude(relaventFlight);
-                        relaventFlight.CurrentLongitude = _flightManager.GetFlightLongitude(relaventFlight);
+                        //relaventFlight.CurrentLatitude = _flightManager.GetFlightLatitude(relaventFlight);
+                        //relaventFlight.CurrentLongitude = _flightManager.GetFlightLongitude(relaventFlight);
                         relaventFlight.CompanyName = plan.CompanyName;
                         relaventFlight.CurrentDateTime = relative_to;
                         relaventFlights = relaventFlights.Append(relaventFlight);
