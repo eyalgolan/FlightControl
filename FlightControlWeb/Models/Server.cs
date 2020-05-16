@@ -1,9 +1,11 @@
-﻿namespace FlightControlWeb.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FlightControlWeb.Models
 {
     public class Server
     {
-        public string ServerID { get; set; }
-
-        public string ServerURL { get; set; }
+        [Key] public int Id { get; set; }
+        [Required] public string ServerID { get; set; }
+        [Required] public string ServerURL { get; set; }
     }
 }

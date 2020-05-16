@@ -25,52 +25,6 @@ namespace FlightControlWeb.Controllers
             return await _context.serverItems.ToListAsync();
         }
 
-        // GET: api/Servers/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Server>> GetServer(string id)
-        {
-            var server = await _context.serverItems.FindAsync(id);
-
-            if (server == null)
-            {
-                return NotFound();
-            }
-
-            return server;
-        }
-
-        // PUT: api/Servers/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutServer(string id, Server server)
-        {
-            if (id != server.ServerID)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(server).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ServerExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/Servers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
@@ -94,14 +48,14 @@ namespace FlightControlWeb.Controllers
                 }
             }
 
-            return CreatedAtAction("GetServer", new { id = server.ServerID }, server);
+            return CreatedAtAction("GetAllServers", new { id = server.ServerID }, server);
         }
 
         // DELETE: api/Servers/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Server>> DeleteServer(string id)
+        public async Task<ActionResult<Server>> DeleteServer(string serverId)
         {
-            var server = await _context.serverItems.FindAsync(id);
+            var server = await _context.serverItems.Where(x => x.ServerID == serverId).FirstOrDefaultAsync();
             if (server == null)
             {
                 return NotFound();
