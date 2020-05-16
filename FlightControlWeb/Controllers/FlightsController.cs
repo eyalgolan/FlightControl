@@ -58,6 +58,9 @@ namespace FlightControlWeb.Controllers
                     var relaventFlight = await _flightContext.FlightItems.Where(x=>x.FlightId == plan.FlightId).FirstOrDefaultAsync();
                     if (relaventFlight != null)
                     {
+                        var currentPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == relaventFlight.FlightId).FirstOrDefaultAsync();
+                        IEnumerable<Segment> planSegments = await _flightContext.SegmentItems
+                            .Where(x => x.FlightPlanId == currentPlan.Id).ToListAsync();
                         //relaventFlight.CurrentLatitude = _flightManager.GetFlightLatitude(relaventFlight);
                         //relaventFlight.CurrentLongitude = _flightManager.GetFlightLongitude(relaventFlight);
                         relaventFlight.CompanyName = plan.CompanyName;
@@ -117,5 +120,37 @@ namespace FlightControlWeb.Controllers
         {
             return _flightContext.FlightItems.Any(e => e.FlightId == id);
         }
+        /*
+        private void LinearInterpolation(FlightPlan fp, DateTime utcDate)
+        {
+            var segments = fp.Segments.ToList();
+
+            int totalTimeSpan = segments.Sum(v => v.Timespan_seconds);
+            TimeSpan dif = utcDate.Subtract(fp.Initial_Location.Date_Time);
+            int dif_sec = (int)dif.TotalSeconds;
+            if (totalTimeSpan > dif_sec)
+            {
+                double cameFromLati = fp.Initial_Location.Latitude;
+                double cameFromLong = fp.Initial_Location.Longitude;
+                foreach (Segment element in flight.Segments)
+                {
+
+                    if (dif_sec >= element.Timespan_seconds)
+                    {
+                        dif_sec = dif_sec - element.Timespan_seconds;
+                    }
+                    else
+                    {
+                        double relative = (double)dif_sec / (double)element.Timespan_seconds;
+                        var flights = (IDictionary<string, Flight>)_cache.Get("flights");
+                        flights[fp.ID].Latitude = cameFromLati + (relative * (element.Latitude - cameFromLati));
+                        flights[fp.ID].Longitude = cameFromLong + (relative * (element.Longitude - cameFromLong));
+                        break;
+                    }
+                    cameFromLati = element.Latitude;
+                    cameFromLong = element.Longitude;
+                }
+            }
+        }*/
     }
 }
