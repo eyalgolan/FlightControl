@@ -532,12 +532,12 @@
                 border-bottom: 6px solid #be2626
             }
 
-    /* ADDED BY ME */
-    .dropzone {
-        border: 2px dashed #dedede;
-        border-radius: 5px;
-        background: #f5f5f5;
-    }
+/* ADDED BY ME */
+.dropzone {
+    border: 2px dashed #dedede;
+    border-radius: 5px;
+    background: #f5f5f5;
+}
 
     .dropzone i {
         font-size: 5rem;
