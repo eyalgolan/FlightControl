@@ -104,8 +104,9 @@ namespace FlightControlWeb.Controllers
                                     lastLatitude = previousSegment.Latitude;
                                 }
 
-                                relaventFlight.CurrentLatitude = (secondsInSegment / (double)k.Value.TimeSpanSeconds) * (k.Value.Latitude - lastLatitude);
-                                relaventFlight.CurrentLongitude = (secondsInSegment / (double)k.Value.TimeSpanSeconds) * (k.Value.Longitude - lastLongitude);
+                                double delta = (secondsInSegment / (double) k.Value.TimeSpanSeconds);
+                                relaventFlight.CurrentLatitude = lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
+                                relaventFlight.CurrentLongitude = lastLongitude + (delta * (k.Value.Longitude - lastLongitude));
                                 planSegmentDict.Clear();
                                 break;
                             }
