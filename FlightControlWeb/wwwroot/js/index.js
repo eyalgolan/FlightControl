@@ -348,6 +348,7 @@ function calculateArrivalTime(flightPlan) {
     let sum = 0;
     for (let i = 0; i < len; ++i) {
         sum += flightPlan.segments[i].timespan_seconds;
+
     }
 
     // adding the seconds and converting to the required format (yyyy-MM-ddTHH:mm:ssZ).
