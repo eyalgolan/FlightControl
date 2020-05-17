@@ -34,18 +34,31 @@ namespace FlightControlWeb.Controllers
 
         // GET: api/FlightPlans/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<FlightPlan>> GetFlightPlan(string id)
+        public async Task<ActionResult<FlightPlanData>> GetFlightPlan(string id)
         {
             IEnumerable<FlightPlan> allFlightPlans = await _flightContext.FlightPlanItems.ToListAsync();
 
             var flightPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
+
 
             if (flightPlan == null)
             {
                 return NotFound();
             }
 
-            return flightPlan;
+            var matchingFlight = await _flightContext.FlightItems.Where(x => x.FlightId == flightPlan.FlightId)
+                .FirstOrDefaultAsync();
+            var matchingInitialLocation = await _flightContext.InitialLocationItems
+                .Where(x => x.FlightPlanId == flightPlan.Id).FirstOrDefaultAsync();
+            IEnumerable<Segment> matchingSegments =
+                await _flightContext.SegmentItems.Where(x => x.FlightPlanId == flightPlan.Id).ToListAsync();
+            var flightPlanData = new FlightPlanData();
+            flightPlanData.passengers = flightPlan.Passengers;
+            flightPlanData.company_name = flightPlan.CompanyName;
+            flightPlanData.initial_location = matchingInitialLocation;
+            flightPlanData.segments = matchingSegments;
+
+            return flightPlanData;
         }
 
         // POST: api/FlightPlans
