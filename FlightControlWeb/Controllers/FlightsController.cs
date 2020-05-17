@@ -40,7 +40,7 @@ namespace FlightControlWeb.Controllers
         public async Task<IEnumerable<Flight>> GetFlights([FromQuery] DateTime relative_to, [FromQuery] bool? sync_all = false)
         {
             relative_to = relative_to.ToUniversalTime();
-           //bool syncAll = sync_all.HasValue ? sync_all.Value : false;
+            //bool syncAll = sync_all.HasValue ? sync_all.Value : false;
 
             IEnumerable<InitialLocation> relaventInitials =
                 await _flightContext.InitialLocationItems.Where(x => x.DateTime <= relative_to).ToListAsync();
@@ -56,21 +56,22 @@ namespace FlightControlWeb.Controllers
             foreach (var plan in relaventPlans)
                 if (plan.EndTime >= relative_to)
                 {
-                    var relaventFlight = await _flightContext.FlightItems.Where(x=>x.FlightId == plan.FlightId).FirstOrDefaultAsync();
+                    var relaventFlight = await _flightContext.FlightItems.Where(x => x.FlightId == plan.FlightId).FirstOrDefaultAsync();
                     if (relaventFlight != null)
                     {
-                        var currentPlan = await _flightContext.FlightPlanItems.Where(x=>x.FlightId == relaventFlight.FlightId).FirstOrDefaultAsync();
+                        var currentPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == relaventFlight.FlightId).FirstOrDefaultAsync();
                         var currentInitial = await _flightContext.InitialLocationItems
                             .Where(x => x.FlightPlanId == currentPlan.Id).FirstOrDefaultAsync();
                         // (the universal time) - (this fligt start) = how much seconds passed since the flight started
-                        int secondsInFlight = (relative_to - currentInitial.DateTime).Seconds;
+                        double secondsInFlight = (relative_to - currentInitial.DateTime).TotalSeconds;
+                        
                         IEnumerable<Segment> planSegments = await _flightContext.SegmentItems
                             .Where(x => x.FlightPlanId == currentPlan.Id).ToListAsync();
-                        SortedDictionary<int,Segment> planSegmentDict = new SortedDictionary<int, Segment>();
+                        SortedDictionary<int, Segment> planSegmentDict = new SortedDictionary<int, Segment>();
                         int index = 0;
                         foreach (var planSegment in planSegments)
                         {
-                            planSegmentDict.Add(index,planSegment);
+                            planSegmentDict.Add(index, planSegment);
                             index++;
                         }
 
@@ -78,7 +79,7 @@ namespace FlightControlWeb.Controllers
                         {
                             Console.WriteLine("key {0}", k.Key);
                         }
-                        foreach (KeyValuePair<int,Segment> k in planSegmentDict)
+                        foreach (KeyValuePair<int, Segment> k in planSegmentDict)
                         {
                             // if the seconds that passed since the beginning of the flight are greater 
                             // than this segment's duration
@@ -88,7 +89,7 @@ namespace FlightControlWeb.Controllers
                             }
                             else
                             {
-                                int secondsInSegment = k.Value.TimeSpanSeconds - secondsInFlight;
+                                int secondsInSegment = k.Value.TimeSpanSeconds - (int) secondsInFlight;
                                 double lastLatitude;
                                 double lastLongitude;
                                 if (k.Key == 0)
@@ -98,19 +99,19 @@ namespace FlightControlWeb.Controllers
                                 }
                                 else
                                 {
-                                    var previousSegment = planSegmentDict[k.Key];
+                                    var previousSegment = planSegmentDict[k.Key - 1];
                                     lastLongitude = previousSegment.Longitude;
                                     lastLatitude = previousSegment.Latitude;
                                 }
 
-                                relaventFlight.CurrentLatitude = ((double)secondsInSegment/k.Value.TimeSpanSeconds) * (k.Value.Latitude - lastLatitude);
-                                relaventFlight.CurrentLongitude = ((double)secondsInSegment / k.Value.TimeSpanSeconds) * (k.Value.Longitude - lastLongitude);
+                                relaventFlight.CurrentLatitude = (secondsInSegment / (double)k.Value.TimeSpanSeconds) * (k.Value.Latitude - lastLatitude);
+                                relaventFlight.CurrentLongitude = (secondsInSegment / (double)k.Value.TimeSpanSeconds) * (k.Value.Longitude - lastLongitude);
                                 planSegmentDict.Clear();
                                 break;
                             }
                         }
 
-                        
+
                         //relaventFlight.CurrentLatitude = _flightManager.GetFlightLatitude(relaventFlight);
                         //relaventFlight.CurrentLongitude = _flightManager.GetFlightLongitude(relaventFlight);
                         relaventFlight.CompanyName = plan.CompanyName;
@@ -148,7 +149,9 @@ namespace FlightControlWeb.Controllers
 
             return relaventFlights;
         }
-        
+
+
+
         // DELETE: api/Flights/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Flight>> DeleteFlight(string id)
