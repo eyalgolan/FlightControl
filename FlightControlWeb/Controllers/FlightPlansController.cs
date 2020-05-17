@@ -14,6 +14,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
+using Microsoft.AspNetCore.Http;
 
 namespace FlightControlWeb.Controllers
 {
@@ -51,10 +52,21 @@ namespace FlightControlWeb.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<FlightPlan>> PostFlightPlan([FromBody] JsonElement body)
+        public async Task<IActionResult> PostFlightPlan(List<IFormFile> files)
         {
 
-            string input = body.ToString();
+            var result = new System.Text.StringBuilder();
+            foreach (var file in files)
+            {
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    while (reader.Peek() >= 0)
+                        result.AppendLine(reader.ReadLine());
+                }
+            }
+
+
+            string input = result.ToString();
             dynamic bodyObj = JsonConvert.DeserializeObject(input);
 
             int passengers = bodyObj["passengers"];

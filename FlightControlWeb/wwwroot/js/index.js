@@ -51,17 +51,17 @@ function createMarkers() {
     markersLayer = L.featureGroup();
     map.addLayer(markersLayer);
 
-    let longtitude;
+    let longitude;
     let latitude;
     let currMarker;
     let markerID;
     let markerToPaint;
     for (let i = 0; i < flights.length; ++i) {
-        longtitude = flights[i].flightPlan.initialLocation.longtitude;
-        latitude = flights[i].flightPlan.initialLocation.latitude;
+        longitude = flights[i].longitude;
+        latitude = flights[i].latitude;
         markerID = flights[i].flightID;
 
-        currMarker = L.marker([latitude, longtitude], { id: markerID }).
+        currMarker = L.marker([latitude, longitude], { id: markerID }).
             addTo(markersLayer);
         toDeleteMarkers = true;
 
@@ -220,7 +220,7 @@ function getFlightsData() {
             map.removeLayer(markersLayer);
             toDeleteMarkers = false;
         }
-        renderFlightData(allflights);
+        renderFlightData(allFlights);
         createMarkers();
     });
 }
@@ -232,12 +232,12 @@ function renderFlightData(data) {
     $.each(data, function (index, flight) {
         // create the row of the flight.
         let rowHTML = `
-            <tr id="${flight.flightID}">
-            <th scope="row">${flight.flightID}</th>
-            <td>${flight.flightPlan.companyName}</td>`;
+            <tr id="${flight.flight_id}">
+            <th scope="row">${flight.flight_id}</th>
+            <td>${flight.company_name}</td>`;
 
         // if its a my flight.
-        if (!flight.isExternal) {
+        if (!flight.is_external) {
             isMyFlight = true;
             rowHTML += `<td>No</td>
                         <td><i value="Delete" type="button" `+
@@ -323,17 +323,17 @@ function renderFlightDetails(flightPlan) {
 
     // creating the row of the table and appending it.
     /*CHANGE AFTER MERGING WITH SERVER: [without flight.]*/
-    let departureTime = new Date(flightPlan.initialLocation.dateTime).toISOString();
-    let arrivalTime = calculateArrivalTime(flight.flightPlan);
+    let departureTime = new Date(flightPlan.initial_location.date_time).toISOString();
+    let arrivalTime = calculateArrivalTime(flightPlan);
 
     let segLen = flightPlan.segments.length - 1;
     let rowHTML = `<tr>
-                   <th scope="row">${flightPlan.flightID}</th>
-                   <td>${flightPlan.companyName}</td>` +
-                  `<td>(${flightPlan.initialLocation.latitude}, ` +
-                  `${flightPlan.initialLocation.longtitude})</td>` +
+                   <th scope="row">${flightPlan.flight_id}</th>
+                   <td>${flightPlan.company_name}</td>` +
+                  `<td>(${flightPlan.initial_location.latitude}, ` +
+                  `${flightPlan.initial_location.longitude})</td>` +
                   `<td>(${flightPlan.segments[segLen].latitude}, ` +
-                  `${flightPlan.segments[segLen].longtitude})</td>
+                  `${flightPlan.segments[segLen].longitude})</td>
                    <td>${departureTime}</td>
                    <td>${arrivalTime}</td>
                    <td>${flightPlan.passengers}</td>
@@ -347,11 +347,11 @@ function calculateArrivalTime(flightPlan) {
     let len = flightPlan.segments.length;
     let sum = 0;
     for (let i = 0; i < len; ++i) {
-        sum += flightPlan.segments[i].timespanSeconds;
+        sum += flightPlan.segments[i].timespan_seconds;
     }
 
     // adding the seconds and converting to the required format (yyyy-MM-ddTHH:mm:ssZ).
-    let departureTime = new Date(flightPlan.initialLocation.dateTime);
+    let departureTime = new Date(flightPlan.initial_location.date_time);
     departureTime.setSeconds(departureTime.getSeconds() + sum);
     let arrivalTime = departureTime.toISOString();
     return arrivalTime;
@@ -363,10 +363,10 @@ function createPolyline(flightPlan) {
     map.addLayer(polylineLayer);
 
     let polyLine = [
-        [flightPlan.initialLocation.latitude, flightPlan.initialLocation.longtitude]
+        [flightPlan.initial_location.latitude, flightPlan.initial_location.longitude]
     ];
     for (let i = 0; i < flightPlan.segments.length; i++) {
-        polyLine[i + 1] = [flightPlan.segments[i].latitude, flightPlan.segments[i].longtitude];
+        polyLine[i + 1] = [flightPlan.segments[i].latitude, flightPlan.segments[i].longitude];
     }
     L.polyline(polyLine).addTo(polylineLayer);
     toDeletePoly = true;
