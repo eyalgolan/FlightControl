@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FlightControlWeb.Controllers
 {
@@ -37,7 +39,7 @@ namespace FlightControlWeb.Controllers
 
         // GET: api/Flights
         [HttpGet]
-        public async Task<IEnumerable<Flight>> GetFlights([FromQuery] DateTime relative_to, [FromQuery] bool? sync_all = false)
+        public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] DateTime relative_to, [FromQuery] bool? sync_all = false)
         {
             relative_to = relative_to.ToUniversalTime();
             //bool syncAll = sync_all.HasValue ? sync_all.Value : false;
@@ -52,11 +54,14 @@ namespace FlightControlWeb.Controllers
                 if (relaventPlan != null) relaventPlans = relaventPlans.Append(relaventPlan);
             }
 
-            IEnumerable<Flight> relaventFlights = new List<Flight>();
+            IEnumerable<FlightData> relaventFlights = new List<FlightData>();
             foreach (var plan in relaventPlans)
                 if (plan.EndTime >= relative_to)
                 {
                     var relaventFlight = await _flightContext.FlightItems.Where(x => x.FlightId == plan.FlightId).FirstOrDefaultAsync();
+                    var relaventFlightData = new FlightData();
+                    relaventFlightData.flight_id = relaventFlight.FlightId;
+                    
                     if (relaventFlight != null)
                     {
                         var currentPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == relaventFlight.FlightId).FirstOrDefaultAsync();
@@ -105,19 +110,20 @@ namespace FlightControlWeb.Controllers
                                 }
 
                                 double delta = (secondsInSegment / (double) k.Value.TimeSpanSeconds);
-                                relaventFlight.CurrentLatitude = lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
-                                relaventFlight.CurrentLongitude = lastLongitude + (delta * (k.Value.Longitude - lastLongitude));
+                                relaventFlightData.latitude = lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
+                                relaventFlightData.longitude = lastLongitude + (delta * (k.Value.Longitude - lastLongitude));
                                 planSegmentDict.Clear();
                                 break;
                             }
                         }
 
 
-                        //relaventFlight.CurrentLatitude = _flightManager.GetFlightLatitude(relaventFlight);
-                        //relaventFlight.CurrentLongitude = _flightManager.GetFlightLongitude(relaventFlight);
-                        relaventFlight.CompanyName = plan.CompanyName;
-                        relaventFlight.CurrentDateTime = relative_to;
-                        relaventFlights = relaventFlights.Append(relaventFlight);
+                        //relaventFlight.latitude = _flightManager.GetFlightLatitude(relaventFlight);
+                        //relaventFlight.longitude = _flightManager.GetFlightLongitude(relaventFlight);
+                        relaventFlightData.passengers = plan.Passengers;
+                        relaventFlightData.company_name = plan.CompanyName;
+                        relaventFlightData.date_time = relative_to;
+                        relaventFlights = relaventFlights.Append(relaventFlightData);
                     }
                 }
 
@@ -138,7 +144,7 @@ namespace FlightControlWeb.Controllers
 
                         if (result.IsSuccessStatusCode)
                         {
-                            IEnumerable<Flight> response = result.Content.ReadAsAsync<IEnumerable<Flight>>().Result;
+                            IEnumerable<FlightData> response = result.Content.ReadAsAsync<IEnumerable<FlightData>>().Result;
                             foreach (var flight in response)
                             {
                                 relaventFlights.Append(flight);
