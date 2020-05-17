@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FlightControlWeb.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -47,14 +48,47 @@ namespace FlightControlWeb.Controllers
             return flightPlan;
         }
 
+        /*
+         [HttpPost]
+        public IActionResult Post(List<IFormFile> files)
+        {
+
+            var result = new System.Text.StringBuilder();
+            foreach (var file in files)
+            {
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    while (reader.Peek() >= 0)
+                        result.AppendLine(reader.ReadLine());
+                }
+            }
+
+            var content = result.ToString();
+            return Ok(new { count = files.Count });
+        }
+    }
+
+
+        */
         // POST: api/FlightPlans
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<FlightPlan>> PostFlightPlan([FromBody] JsonElement body)
+        public async Task<IActionResult> PostFlightPlan(List<IFormFile> files)
         {
 
-            string input = body.ToString();
+            var result = new System.Text.StringBuilder();
+            foreach (var file in files)
+            {
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    while (reader.Peek() >= 0)
+                        result.AppendLine(reader.ReadLine());
+                }
+            }
+            //var content = result.ToString();
+
+            string input = result.ToString();
             dynamic bodyObj = JsonConvert.DeserializeObject(input);
 
             int passengers = bodyObj["passengers"];
