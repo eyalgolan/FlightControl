@@ -1,5 +1,5 @@
 ﻿let map;
-let flights = [];
+//let flights = [];
 let currSelectedID = 0;
 
 let markersLayer;
@@ -46,7 +46,7 @@ function initMap() {
 
 
 // the function create markers on the map based on the data of the flights we polled.
-function createMarkers() {
+function createMarkers(flights) {
     // creating the markers.
     markersLayer = L.featureGroup();
     map.addLayer(markersLayer);
@@ -59,7 +59,7 @@ function createMarkers() {
     for (let i = 0; i < flights.length; ++i) {
         longitude = flights[i].longitude;
         latitude = flights[i].latitude;
-        markerID = flights[i].flightID;
+        markerID = flights[i].flight_id;
 
         currMarker = L.marker([latitude, longitude], { id: markerID }).
             addTo(markersLayer);
@@ -80,7 +80,7 @@ function createMarkers() {
             // TODO: GET requesnt /api/FlightPlan/{id} (instead of the loop)
             let f;
             for (let i = 0; i < flights.length; ++i) {
-                if (e.target.options.id === flights[i].flightID) {
+                if (e.target.options.id === flights[i].flight_id) {
                     f = flights[i];
                     break;
                 }
@@ -213,15 +213,16 @@ function getFlightsData() {
    /* $.get(`api/flights?relative_to=${nowUTC}`, function (allFlights, status) {
         renderFlightData(allFlights);
     });*/
-
+    //console.log(nowUTC);
     $.get(`api/flights?relative_to=${nowUTC}&sync_all`, function (allFlights, status) {
-        flights = allFlights;
+        //let flights = allFlights;
+        //console.log(flights);
         if (toDeleteMarkers) {
             map.removeLayer(markersLayer);
             toDeleteMarkers = false;
         }
         renderFlightData(allFlights);
-        createMarkers();
+        createMarkers(allFlights);
     });
 }
 
@@ -263,7 +264,7 @@ function renderFlightData(data) {
 
                 //renderFlightDetails(flight);
                 /*ADD AFTER MERGING WITH SERVER:*/
-                $.get(`api/FlightPlan/${flight.flightID}`, function (flightPlan, status) {
+                $.get(`api/FlightPlan/${flight.flight_id}`, function (flightPlan, status) {
                     // painting the row.
                     $(this).addClass('text-info').siblings().removeClass('text-info');
                     renderFlightDetails(flightPlan);
@@ -313,7 +314,7 @@ function addTitle() {
 
 // the function renders the details of a flight to the table.
 function renderFlightDetails(flightPlan) {
-
+    debugger;
     // clearing previous information.
     $("#flight_details thead").html('');
     $("#flight_details tbody").html('');
