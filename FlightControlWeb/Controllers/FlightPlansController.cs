@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -61,13 +63,8 @@ namespace FlightControlWeb.Controllers
             return flightPlanData;
         }
 
-        // POST: api/FlightPlans
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
-        public async Task<IActionResult> PostFlightPlan(List<IFormFile> files)
+        private StringBuilder BuildString(List<IFormFile> files)
         {
-
             var result = new System.Text.StringBuilder();
             foreach (var file in files)
             {
@@ -78,33 +75,44 @@ namespace FlightControlWeb.Controllers
                 }
             }
 
+            return result;
+        }
 
+        private dynamic ConvertAndDeserialize(StringBuilder result)
+        {
             string input = result.ToString();
             dynamic bodyObj = JsonConvert.DeserializeObject(input);
+            return bodyObj;
+        }
 
-            int passengers = bodyObj["passengers"];
-            string companyName = bodyObj["company_name"];
-            double longitude = bodyObj["initial_location"]["longitude"];
-            double latitude = bodyObj["initial_location"]["latitude"];
-            DateTime dateTime = bodyObj["initial_location"]["date_time"];
-
+        private Flight AddFlight()
+        {
             Flight newFlight = new Flight();
             _flightManager.CreateId(newFlight);
             _flightContext.FlightItems.Add(newFlight);
 
+            return newFlight;
+        }
+
+        private FlightPlan AddFlightPlan(Flight newFlight, int passengers, string companyName)
+        {
             FlightPlan newFlightPlan = new FlightPlan
             {
                 FlightId = newFlight.FlightId,
                 IsExternal = false
             };
-            //_flightPlanManager.CreateId(newFlightPlan);
+
             newFlightPlan.Passengers = passengers;
             newFlightPlan.CompanyName = companyName;
             _flightContext.FlightPlanItems.Add(newFlightPlan);
 
+            return newFlightPlan;
+        }
+
+        private InitialLocation AddInitialLocation(FlightPlan newFlightPlan, double longitude, double latitude, DateTime dateTime)
+        {
             InitialLocation newInitialLocation = new InitialLocation
             {
-                //_flightPlanManager.CreateId(newInitialLocation);
                 Latitude = latitude,
                 Longitude = longitude,
                 DateTime = dateTime,
@@ -112,7 +120,11 @@ namespace FlightControlWeb.Controllers
             };
             _flightContext.InitialLocationItems.Add(newInitialLocation);
 
-            dynamic segmentsObj = bodyObj["segments"];
+            return newInitialLocation;
+        }
+
+        private DateTime AddSegments(DateTime dateTime, dynamic segmentsObj, FlightPlan newFlightPlan)
+        {
             DateTime start = dateTime;
             DateTime end = start;
             foreach (var segment in segmentsObj)
@@ -128,38 +140,84 @@ namespace FlightControlWeb.Controllers
                     StartTime = start,
                     EndTime = end
                 };
-                start = end; 
+                start = end;
                 _flightContext.SegmentItems.Add(newSegment);
             }
 
-            newFlightPlan.EndTime = end;
-            await _flightContext.SaveChangesAsync();
+            return end;
+        }
 
-
+        private async Task<IActionResult> UpdateDb(Flight newFlight, FlightPlan newFlightPlan, InitialLocation newInitialLocation)
+        {
             try
             {
                 await _flightContext.SaveChangesAsync();
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException e)
             {
-                if (FlightPlanExists(newFlightPlan.FlightId))
+                if (FlightExists(newFlight.Id) || FlightPlanExists(newFlightPlan.Id) || InitialLocationExists(newInitialLocation.Id))
                 {
                     return Conflict();
                 }
                 else
                 {
+                    Debug.WriteLine(e.Message);
                     throw;
                 }
             }
-            
 
             return CreatedAtAction("GetFlightPlan", new { id = newFlightPlan.FlightId }, newFlightPlan);
-    
-    }
-
-        private bool FlightPlanExists(string id)
+        }
+        private async Task<IActionResult> AddObjects(dynamic bodyObj)
         {
-            return _flightContext.FlightPlanItems.Any(e => e.FlightId == id);
+            int passengers = bodyObj["passengers"];
+            string companyName = bodyObj["company_name"];
+            double longitude = bodyObj["initial_location"]["longitude"];
+            double latitude = bodyObj["initial_location"]["latitude"];
+            DateTime dateTime = bodyObj["initial_location"]["date_time"];
+            dynamic segmentsObj = bodyObj["segments"];
+
+            Flight newFlight = AddFlight();
+
+            FlightPlan newFlightPlan = AddFlightPlan(newFlight, passengers, companyName);
+
+            InitialLocation newInitialLocation = AddInitialLocation(newFlightPlan, longitude, latitude, dateTime);
+
+            DateTime end = AddSegments(dateTime, segmentsObj, newFlightPlan);
+
+            newFlightPlan.EndTime = end;
+
+            return await UpdateDb(newFlight, newFlightPlan, newInitialLocation);
+        }
+
+        // POST: api/FlightPlans
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        [HttpPost]
+        public async Task<IActionResult> PostFlightPlan(List<IFormFile> files)
+        {
+
+            var result = BuildString(files);
+            dynamic bodyObj = ConvertAndDeserialize(result);
+
+            return AddObjects(bodyObj);
+        }
+
+        private bool FlightPlanExists(int id)
+        {
+            return _flightContext.FlightPlanItems.Any(e => e.Id == id);
+        }
+        private bool FlightExists(int id)
+        {
+            return _flightContext.FlightItems.Any(e => e.Id == id);
+        }
+        private bool InitialLocationExists(int id)
+        {
+            return _flightContext.InitialLocationItems.Any(e => e.Id == id);
+        }
+        private bool SegmentExists(int id)
+        {
+            return _flightContext.SegmentItems.Any(e => e.Id == id);
         }
     }
 }
