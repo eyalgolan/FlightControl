@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
 using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -184,7 +185,6 @@ namespace FlightControlWeb.Controllers
 
             return await UpdateDb(newFlight, newFlightPlan, newInitialLocation);
         }
-
         // POST: api/FlightPlans
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
@@ -194,7 +194,16 @@ namespace FlightControlWeb.Controllers
             var result = BuildString(files);
             var bodyObj = ConvertAndDeserialize(result);
 
-            return AddObjects(bodyObj);
+            try
+            {
+                AddObjects(bodyObj);
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("failed to post flight plan");
+            }
+
+            return StatusCode(201);
         }
 
         private bool FlightPlanExists(int id)
