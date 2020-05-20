@@ -1,22 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
+using FlightControlWeb.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FlightControlWeb.Models;
-using Microsoft.AspNetCore.Routing.Constraints;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using JsonSerializer = Newtonsoft.Json.JsonSerializer;
-using Microsoft.AspNetCore.Http;
 
 namespace FlightControlWeb.Controllers
 {
@@ -25,13 +18,33 @@ namespace FlightControlWeb.Controllers
     public class FlightPlansController : ControllerBase
     {
         private readonly IDataContext _flightContext;
-        private readonly IFlightPlanManager _flightPlanManager;
         private readonly IFlightManager _flightManager;
+        private readonly IFlightPlanManager _flightPlanManager;
+
         public FlightPlansController(FlightContext flightContext)
         {
             _flightContext = flightContext;
             _flightPlanManager = new FlightPlanManager();
             _flightManager = new FlightManager();
+        }
+
+        private async Task<ActionResult<FlightPlanData>> BuildMatchingFlightPlan(string id, FlightPlan flightPlan)
+        {
+            var matchingFlight = await _flightContext.FlightItems.Where(x => x.FlightId == flightPlan.FlightId)
+                .FirstOrDefaultAsync();
+            var matchingInitialLocation = await _flightContext.InitialLocationItems
+                .Where(x => x.FlightPlanId == flightPlan.Id).FirstOrDefaultAsync();
+            IEnumerable<Segment> matchingSegments =
+                await _flightContext.SegmentItems.Where(x => x.FlightPlanId == flightPlan.Id).ToListAsync();
+            var flightPlanData = new FlightPlanData
+            {
+                passengers = flightPlan.Passengers,
+                company_name = flightPlan.CompanyName,
+                initial_location = matchingInitialLocation,
+                segments = matchingSegments
+            };
+
+            return flightPlanData;
         }
 
         // GET: api/FlightPlans/5
@@ -42,52 +55,34 @@ namespace FlightControlWeb.Controllers
 
             var flightPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
 
+            if (flightPlan == null) return NotFound();
 
-            if (flightPlan == null)
-            {
-                return NotFound();
-            }
-
-            var matchingFlight = await _flightContext.FlightItems.Where(x => x.FlightId == flightPlan.FlightId)
-                .FirstOrDefaultAsync();
-            var matchingInitialLocation = await _flightContext.InitialLocationItems
-                .Where(x => x.FlightPlanId == flightPlan.Id).FirstOrDefaultAsync();
-            IEnumerable<Segment> matchingSegments =
-                await _flightContext.SegmentItems.Where(x => x.FlightPlanId == flightPlan.Id).ToListAsync();
-            var flightPlanData = new FlightPlanData();
-            flightPlanData.passengers = flightPlan.Passengers;
-            flightPlanData.company_name = flightPlan.CompanyName;
-            flightPlanData.initial_location = matchingInitialLocation;
-            flightPlanData.segments = matchingSegments;
-
-            return flightPlanData;
+            return await BuildMatchingFlightPlan(id, flightPlan);
         }
 
         private StringBuilder BuildString(List<IFormFile> files)
         {
-            var result = new System.Text.StringBuilder();
+            var result = new StringBuilder();
             foreach (var file in files)
-            {
                 using (var reader = new StreamReader(file.OpenReadStream()))
                 {
                     while (reader.Peek() >= 0)
                         result.AppendLine(reader.ReadLine());
                 }
-            }
 
             return result;
         }
 
         private dynamic ConvertAndDeserialize(StringBuilder result)
         {
-            string input = result.ToString();
+            var input = result.ToString();
             dynamic bodyObj = JsonConvert.DeserializeObject(input);
             return bodyObj;
         }
 
         private Flight AddFlight()
         {
-            Flight newFlight = new Flight();
+            var newFlight = new Flight();
             _flightManager.CreateId(newFlight);
             _flightContext.FlightItems.Add(newFlight);
 
@@ -96,7 +91,7 @@ namespace FlightControlWeb.Controllers
 
         private FlightPlan AddFlightPlan(Flight newFlight, int passengers, string companyName)
         {
-            FlightPlan newFlightPlan = new FlightPlan
+            var newFlightPlan = new FlightPlan
             {
                 FlightId = newFlight.FlightId,
                 IsExternal = false
@@ -109,9 +104,10 @@ namespace FlightControlWeb.Controllers
             return newFlightPlan;
         }
 
-        private InitialLocation AddInitialLocation(FlightPlan newFlightPlan, double longitude, double latitude, DateTime dateTime)
+        private InitialLocation AddInitialLocation(FlightPlan newFlightPlan, double longitude, double latitude,
+            DateTime dateTime)
         {
-            InitialLocation newInitialLocation = new InitialLocation
+            var newInitialLocation = new InitialLocation
             {
                 Latitude = latitude,
                 Longitude = longitude,
@@ -125,13 +121,13 @@ namespace FlightControlWeb.Controllers
 
         private DateTime AddSegments(DateTime dateTime, dynamic segmentsObj, FlightPlan newFlightPlan)
         {
-            DateTime start = dateTime;
-            DateTime end = start;
+            var start = dateTime;
+            var end = start;
             foreach (var segment in segmentsObj)
             {
                 double timespan = segment["timespan_seconds"];
                 end = start.AddSeconds(timespan);
-                Segment newSegment = new Segment
+                var newSegment = new Segment
                 {
                     Longitude = segment["longitude"],
                     Latitude = segment["latitude"],
@@ -147,7 +143,8 @@ namespace FlightControlWeb.Controllers
             return end;
         }
 
-        private async Task<IActionResult> UpdateDb(Flight newFlight, FlightPlan newFlightPlan, InitialLocation newInitialLocation)
+        private async Task<IActionResult> UpdateDb(Flight newFlight, FlightPlan newFlightPlan,
+            InitialLocation newInitialLocation)
         {
             try
             {
@@ -155,19 +152,17 @@ namespace FlightControlWeb.Controllers
             }
             catch (DbUpdateException e)
             {
-                if (FlightExists(newFlight.Id) || FlightPlanExists(newFlightPlan.Id) || InitialLocationExists(newInitialLocation.Id))
-                {
+                if (FlightExists(newFlight.Id) || FlightPlanExists(newFlightPlan.Id) ||
+                    InitialLocationExists(newInitialLocation.Id))
                     return Conflict();
-                }
-                else
-                {
-                    Debug.WriteLine(e.Message);
-                    throw;
-                }
+
+                Debug.WriteLine(e.Message);
+                throw;
             }
 
-            return CreatedAtAction("GetFlightPlan", new { id = newFlightPlan.FlightId }, newFlightPlan);
+            return CreatedAtAction("GetFlightPlan", new {id = newFlightPlan.FlightId}, newFlightPlan);
         }
+
         private async Task<IActionResult> AddObjects(dynamic bodyObj)
         {
             int passengers = bodyObj["passengers"];
@@ -175,13 +170,13 @@ namespace FlightControlWeb.Controllers
             double longitude = bodyObj["initial_location"]["longitude"];
             double latitude = bodyObj["initial_location"]["latitude"];
             DateTime dateTime = bodyObj["initial_location"]["date_time"];
-            dynamic segmentsObj = bodyObj["segments"];
+            var segmentsObj = bodyObj["segments"];
 
-            Flight newFlight = AddFlight();
+            var newFlight = AddFlight();
 
-            FlightPlan newFlightPlan = AddFlightPlan(newFlight, passengers, companyName);
+            var newFlightPlan = AddFlightPlan(newFlight, passengers, companyName);
 
-            InitialLocation newInitialLocation = AddInitialLocation(newFlightPlan, longitude, latitude, dateTime);
+            var newInitialLocation = AddInitialLocation(newFlightPlan, longitude, latitude, dateTime);
 
             DateTime end = AddSegments(dateTime, segmentsObj, newFlightPlan);
 
@@ -196,9 +191,8 @@ namespace FlightControlWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> PostFlightPlan(List<IFormFile> files)
         {
-
             var result = BuildString(files);
-            dynamic bodyObj = ConvertAndDeserialize(result);
+            var bodyObj = ConvertAndDeserialize(result);
 
             return AddObjects(bodyObj);
         }
@@ -207,17 +201,15 @@ namespace FlightControlWeb.Controllers
         {
             return _flightContext.FlightPlanItems.Any(e => e.Id == id);
         }
+
         private bool FlightExists(int id)
         {
             return _flightContext.FlightItems.Any(e => e.Id == id);
         }
+
         private bool InitialLocationExists(int id)
         {
             return _flightContext.InitialLocationItems.Any(e => e.Id == id);
-        }
-        private bool SegmentExists(int id)
-        {
-            return _flightContext.SegmentItems.Any(e => e.Id == id);
         }
     }
 }

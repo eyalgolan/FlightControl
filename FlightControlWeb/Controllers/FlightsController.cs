@@ -37,37 +37,50 @@ namespace FlightControlWeb.Controllers
         */
 
 
-        // GET: api/Flights
-        [HttpGet]
-        public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] DateTime relative_to, [FromQuery] bool? sync_all = false)
+        private async Task<IEnumerable<FlightPlan>> FindPlanStartingBefore(DateTime relative_to)
         {
-            relative_to = relative_to.ToUniversalTime();
-            //bool syncAll = sync_all.HasValue ? sync_all.Value : false;
-
             IEnumerable<InitialLocation> relaventInitials =
                 await _flightContext.InitialLocationItems.Where(x => x.DateTime <= relative_to).ToListAsync();
             IEnumerable<FlightPlan> relaventPlans = Enumerable.Empty<FlightPlan>();
             foreach (var initial in relaventInitials)
             {
-                int segmentFlightPlanId = initial.FlightPlanId;
-                var relaventPlan = await _flightContext.FlightPlanItems.FindAsync(segmentFlightPlanId);
+                int initialFlightPlanId = initial.FlightPlanId;
+                var relaventPlan = await _flightContext.FlightPlanItems.FindAsync(initialFlightPlanId);
                 if (relaventPlan != null) relaventPlans = relaventPlans.Append(relaventPlan);
             }
 
-            IEnumerable<FlightData> relaventFlights = new List<FlightData>();
-            foreach (var plan in relaventPlans)
+            return relaventPlans;
+        }
+
+        public async Task<IEnumerable<Flight>> FindRelevantFlights()
+        {
+
+        }
+
+        // GET: api/Flights
+        [HttpGet]
+        public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] DateTime relative_to, [FromQuery] bool? sync_all = false)
+        {
+            relative_to = relative_to.ToUniversalTime();
+
+            IEnumerable<FlightPlan> relevantPlans = await FindPlanStartingBefore(relative_to);
+
+            IEnumerable<FlightData> relevantFlights = new List<FlightData>();
+            foreach (var plan in relevantPlans)
                 if (plan.EndTime >= relative_to)
                 {
-                    var relaventFlight = await _flightContext.FlightItems.Where(x => x.FlightId == plan.FlightId).FirstOrDefaultAsync();
-                    var relaventFlightData = new FlightData();
-                    relaventFlightData.flight_id = relaventFlight.FlightId;
-                    
-                    if (relaventFlight != null)
+                    var relevantFlight = await _flightContext.FlightItems.Where(x => x.FlightId == plan.FlightId).FirstOrDefaultAsync();
+                    var relevantFlightData = new FlightData
                     {
-                        var currentPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == relaventFlight.FlightId).FirstOrDefaultAsync();
+                        flight_id = relevantFlight.FlightId
+                    };
+
+                    if (relevantFlight != null)
+                    {
+                        var currentPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == relevantFlight.FlightId).FirstOrDefaultAsync();
                         var currentInitial = await _flightContext.InitialLocationItems
                             .Where(x => x.FlightPlanId == currentPlan.Id).FirstOrDefaultAsync();
-                        // (the universal time) - (this fligt start) = how much seconds passed since the flight started
+                        
                         double secondsInFlight = (relative_to - currentInitial.DateTime).TotalSeconds;
                         
                         IEnumerable<Segment> planSegments = await _flightContext.SegmentItems
@@ -110,20 +123,18 @@ namespace FlightControlWeb.Controllers
                                 }
 
                                 double delta = (secondsInSegment / (double) k.Value.TimeSpanSeconds);
-                                relaventFlightData.latitude = lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
-                                relaventFlightData.longitude = lastLongitude + (delta * (k.Value.Longitude - lastLongitude));
+                                relevantFlightData.latitude = lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
+                                relevantFlightData.longitude = lastLongitude + (delta * (k.Value.Longitude - lastLongitude));
                                 planSegmentDict.Clear();
                                 break;
                             }
                         }
 
 
-                        //relaventFlight.latitude = _flightManager.GetFlightLatitude(relaventFlight);
-                        //relaventFlight.longitude = _flightManager.GetFlightLongitude(relaventFlight);
-                        relaventFlightData.passengers = plan.Passengers;
-                        relaventFlightData.company_name = plan.CompanyName;
-                        relaventFlightData.date_time = relative_to;
-                        relaventFlights = relaventFlights.Append(relaventFlightData);
+                        relevantFlightData.passengers = plan.Passengers;
+                        relevantFlightData.company_name = plan.CompanyName;
+                        relevantFlightData.date_time = relative_to;
+                        relevantFlights = relevantFlights.Append(relevantFlightData);
                     }
                 }
 
@@ -147,14 +158,14 @@ namespace FlightControlWeb.Controllers
                             IEnumerable<FlightData> response = result.Content.ReadAsAsync<IEnumerable<FlightData>>().Result;
                             foreach (var flight in response)
                             {
-                                relaventFlights.Append(flight);
+                                relevantFlights.Append(flight);
                             }
                         }
                     }
                 }
             }
 
-            return relaventFlights;
+            return relevantFlights;
         }
 
 
@@ -163,8 +174,6 @@ namespace FlightControlWeb.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Flight>> DeleteFlight(string id)
         {
-            //var flight = await _flightContext.FlightItems.FindAsync(id);
-            //await db.Foos.Where(x => x.UserId == userId).ToListAsync();
             var flight = await _flightContext.FlightItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
             if (flight == null) return NotFound();
 
