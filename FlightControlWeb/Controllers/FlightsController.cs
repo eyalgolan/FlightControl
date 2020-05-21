@@ -55,6 +55,7 @@ namespace FlightControlWeb.Controllers
             }
 
             IEnumerable<FlightData> relaventFlights = new List<FlightData>();
+
             foreach (var plan in relaventPlans)
                 if (plan.EndTime >= relative_to)
                 {
@@ -153,7 +154,7 @@ namespace FlightControlWeb.Controllers
                     }
                 }
             }
-
+            
             return relaventFlights;
         }
 

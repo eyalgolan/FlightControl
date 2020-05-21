@@ -18,6 +18,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace FlightControlWeb.Controllers
 {
+    /*
+     * This class is the controller of for the flight plans we get from internal
+     * and external servers. it connects between the html client to the server
+     * it contains the flight context (the DB) and updates
+     * it according to the changes that occur in the program.
+     */
     [Route("api/FlightPlan")]
     [ApiController]
     public class FlightPlansController : ControllerBase
@@ -32,6 +38,12 @@ namespace FlightControlWeb.Controllers
             _flightManager = new FlightManager();
         }
 
+
+        /*
+         * Once the user types or ask for the GET with the flight id, this method finds
+         * the specific flight we look for in our DB. if it exists, we return it,
+         * otherwise we return NOT FOUND.
+         */
         // GET: api/FlightPlans/5
         [HttpGet("{id}")]
         public async Task<ActionResult<FlightPlanData>> GetFlightPlan(string id)
@@ -64,6 +76,13 @@ namespace FlightControlWeb.Controllers
         // POST: api/FlightPlans
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+
+        /*
+         * This method is a POST implementation. this way we add new flights to our DB.
+         * it gets the info as JSON file from an external server or a client and parse it.
+         * for each flight we create a new flight plan object and fill each related part.
+         * when we done parsing and creating each flight plan object we add it to our DB. 
+         */
         [HttpPost]
         public async Task<IActionResult> PostFlightPlan(List<IFormFile> files)
         {
@@ -157,6 +176,10 @@ namespace FlightControlWeb.Controllers
     
     }
 
+        /*
+         * This method gets a flight ID as an argument and returns true if this flight
+         * exists in our DB. otherwise it return false.
+         */
         private bool FlightPlanExists(string id)
         {
             return _flightContext.FlightPlanItems.Any(e => e.FlightId == id);
