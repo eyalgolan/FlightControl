@@ -36,7 +36,10 @@ namespace FlightControlWeb.Controllers
         }
         */
 
-
+        /* 
+        * This method gets time and finds all the flight plans that their related flight
+        * occurs before starts before the given time
+        */
         private async Task<IEnumerable<FlightPlan>> FindPlanStartingBefore(DateTime relative_to)
         {
             IEnumerable<InitialLocation> relaventInitials =
@@ -52,6 +55,10 @@ namespace FlightControlWeb.Controllers
             return relaventPlans;
         }
 
+        /* 
+        * This method find the specific segment that the flight is in at given time, and updates it
+        * live so we can see in each and every moment on the HTTP view where the flight is at
+        */
         private static void FindAndUpdateLocation(DateTime relative_to, SortedDictionary<int, Segment> planSegmentDict, double secondsInFlight, InitialLocation currentInitial, FlightData relevantFlightData, FlightPlan plan)
         {
             foreach (KeyValuePair<int, Segment> k in planSegmentDict)
@@ -94,6 +101,10 @@ namespace FlightControlWeb.Controllers
             relevantFlightData.date_time = relative_to;
         }
 
+        /* todo
+        * This method updates the data of a flight (especially location) and add it to
+        * the relevant flights list.
+        */
         private async void UpdateAndAddFlight(DateTime relative_to, InitialLocation currentInitial, FlightPlan currentPlan, FlightData relevantFlightData, FlightPlan plan, IEnumerable<FlightData> relevantFlights)
         {
             double secondsInFlight = (relative_to - currentInitial.DateTime).TotalSeconds;
@@ -112,7 +123,14 @@ namespace FlightControlWeb.Controllers
             
             relevantFlights = relevantFlights.Append(relevantFlightData);
         }
-        
+
+
+       /*
+        * This method find relevant internal flights.
+        * it gets a relevant flight plans and time, and if the flights occurs after
+        * the given time it creates a flight data object and adds it to a list.
+        * in the it returns all the relevant data for these flights.
+        */
         private async Task<IEnumerable<FlightData>> FindRelevantInternalFlights(IEnumerable<FlightPlan> relevantPlans, DateTime relative_to)
         {
             IEnumerable<FlightData> relevantFlights = new List<FlightData>();
@@ -139,6 +157,11 @@ namespace FlightControlWeb.Controllers
             return relevantFlights;
         }
 
+        /*
+        * Our Implementation to HTTP GET method.
+        * Once the user types or ask for the GET, this method finds all the flights that
+        * in our DB. then, we put it in a list of flights and return it
+        */
         // GET: api/Flights
         [HttpGet]
         public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] DateTime relative_to, [FromQuery] bool? sync_all = false)
@@ -258,6 +281,14 @@ namespace FlightControlWeb.Controllers
 
 
 
+
+
+        /*
+         * Our implementation for the HTTP DELETE method.
+         * This method gets a flight ID as an argument and removes its related flight
+         * and its flight plan from our DB.
+         * if the Flight does not exist we return not found error.
+         */
         // DELETE: api/Flights/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Flight>> DeleteFlight(string id)
@@ -273,6 +304,10 @@ namespace FlightControlWeb.Controllers
             return flight;
         }
 
+        /*
+         * This method gets a flight ID as an argument and returns true if this flight
+         * exists in our DB. otherwise it returns false.
+         */
         private bool FlightExists(string id)
         {
             return _flightContext.FlightItems.Any(e => e.FlightId == id);
