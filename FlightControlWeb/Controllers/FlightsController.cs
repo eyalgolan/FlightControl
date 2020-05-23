@@ -162,7 +162,7 @@ namespace FlightControlWeb.Controllers
         private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> relevantFlights, DateTime relative_to)
         {
             //todo need to check this works
-            IEnumerable<Server> servers = _flightContext.Set<Server>();
+            var servers = await _flightContext.ServerItems.ToListAsync();
             foreach (var server in servers)
             {
                 string _apiUrl = server.ServerURL + "/api/flights?relative_to=" + relative_to;
@@ -194,8 +194,8 @@ namespace FlightControlWeb.Controllers
         */
         // GET: api/Flights
         [HttpGet]
-        public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] DateTime relative_to, [FromQuery] bool? sync_all = false)
-        {
+        public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] DateTime relative_to)
+        { 
             relative_to = relative_to.ToUniversalTime();
 
             IEnumerable<FlightPlan> relevantPlans = await FindPlanStartingBefore(relative_to);
@@ -204,7 +204,8 @@ namespace FlightControlWeb.Controllers
 
             relevantFlights = await FindRelevantInternalFlights(relevantPlans, relative_to);
 
-            if (sync_all != null)
+            string requestValue = Request.QueryString.Value;
+            if (requestValue.Contains("sync_all"))
             {
                 relevantFlights = await AddExternalFlights(relevantFlights, relative_to);
             }
