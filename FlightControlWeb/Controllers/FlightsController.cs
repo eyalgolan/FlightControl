@@ -87,18 +87,18 @@ namespace FlightControlWeb.Controllers
                     }
 
                     double delta = (secondsInSegment / (double)k.Value.TimeSpanSeconds);
-                    relevantFlightData.latitude =
+                    relevantFlightData.Latitude =
                         lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
-                    relevantFlightData.longitude =
+                    relevantFlightData.Longitude =
                         lastLongitude + (delta * (k.Value.Longitude - lastLongitude));
                     planSegmentDict.Clear();
                     break;
                 }
             }
 
-            relevantFlightData.passengers = plan.Passengers;
-            relevantFlightData.company_name = plan.CompanyName;
-            relevantFlightData.date_time = relative_to;
+            relevantFlightData.Passengers = plan.Passengers;
+            relevantFlightData.CompanyName = plan.CompanyName;
+            relevantFlightData.CurrDateTime = relative_to;
         }
 
         /* todo
@@ -142,7 +142,7 @@ namespace FlightControlWeb.Controllers
                         .FirstOrDefaultAsync();
                     var relevantFlightData = new FlightData
                     {
-                        flight_id = relevantFlight.FlightId
+                        FlightID = relevantFlight.FlightId
                     };
 
                     var currentPlan = await _flightContext.FlightPlanItems
@@ -179,7 +179,7 @@ namespace FlightControlWeb.Controllers
                         .FirstOrDefaultAsync();
                     var relevantFlightData = new FlightData
                     {
-                        flight_id = relevantFlight.FlightId
+                        FlightID = relevantFlight.FlightId
                     };
 
                     if (relevantFlight != null)
@@ -232,18 +232,18 @@ namespace FlightControlWeb.Controllers
                                 }
 
                                 double delta = (secondsInSegment / (double) k.Value.TimeSpanSeconds);
-                                relevantFlightData.latitude =
+                                relevantFlightData.Latitude =
                                     lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
-                                relevantFlightData.longitude =
+                                relevantFlightData.Longitude =
                                     lastLongitude + (delta * (k.Value.Longitude - lastLongitude));
                                 planSegmentDict.Clear();
                                 break;
                             }
                         }
 
-                        relevantFlightData.passengers = plan.Passengers;
-                        relevantFlightData.company_name = plan.CompanyName;
-                        relevantFlightData.date_time = relative_to;
+                        relevantFlightData.Passengers = plan.Passengers;
+                        relevantFlightData.CompanyName = plan.CompanyName;
+                        relevantFlightData.CurrDateTime = relative_to;
                         relevantFlights = relevantFlights.Append(relevantFlightData);
                     }
                 }
