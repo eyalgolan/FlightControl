@@ -86,7 +86,7 @@ namespace FlightControlWeb.Controllers
                         lastLatitude = previousSegment.Latitude;
                     }
 
-                    double delta = (secondsInSegment / (double)k.Value.TimeSpanSeconds);
+                    double delta = 1 - (secondsInSegment / (double)k.Value.TimeSpanSeconds);
                     relevantFlightData.Latitude =
                         lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
                     relevantFlightData.Longitude =
