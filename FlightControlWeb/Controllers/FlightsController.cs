@@ -219,10 +219,13 @@ namespace FlightControlWeb.Controllers
                                 int secondsInSegment = k.Value.TimeSpanSeconds - (int) secondsInFlight;
                                 double lastLatitude;
                                 double lastLongitude;
+                                double delta = 1 - (secondsInSegment / (double)k.Value.TimeSpanSeconds);
                                 if (k.Key == 0)
                                 {
                                     lastLongitude = currentInitial.Longitude;
                                     lastLatitude = currentInitial.Latitude;
+                                    //relevantFlightData.Latitude = lastLatitude;
+                                    //relevantFlightData.Longitude = lastLongitude;
                                 }
                                 else
                                 {
@@ -230,8 +233,10 @@ namespace FlightControlWeb.Controllers
                                     lastLongitude = previousSegment.Longitude;
                                     lastLatitude = previousSegment.Latitude;
                                 }
-
-                                double delta = (secondsInSegment / (double) k.Value.TimeSpanSeconds);
+                                //if (secondsInSegment == (double) k.Value.TimeSpanSeconds)
+                                //{
+                                //    delta = 0;
+                                //}
                                 relevantFlightData.Latitude =
                                     lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
                                 relevantFlightData.Longitude =
