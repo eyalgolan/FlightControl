@@ -105,7 +105,7 @@ namespace FlightControlWeb.Controllers
         * This method updates the data of a flight (especially location) and add it to
         * the relevant flights list.
         */
-        private async void UpdateAndAddFlight(DateTime relative_to, InitialLocation currentInitial, FlightPlan currentPlan, FlightData relevantFlightData, FlightPlan plan, IEnumerable<FlightData> relevantFlights)
+        private async Task<IEnumerable<FlightData>> UpdateAndAddFlight(DateTime relative_to, InitialLocation currentInitial, FlightPlan currentPlan, FlightData relevantFlightData, FlightPlan plan, IEnumerable<FlightData> relevantFlights)
         {
             double secondsInFlight = (relative_to - currentInitial.DateTime).TotalSeconds;
 
@@ -122,6 +122,8 @@ namespace FlightControlWeb.Controllers
             FindAndUpdateLocation(relative_to, planSegmentDict, secondsInFlight, currentInitial, relevantFlightData, plan);
 
             relevantFlights = relevantFlights.Append(relevantFlightData);
+
+            return relevantFlights;
         }
 
 
@@ -145,11 +147,9 @@ namespace FlightControlWeb.Controllers
                         FlightID = relevantFlight.FlightId
                     };
 
-                    var currentPlan = await _flightContext.FlightPlanItems
-                        .Where(x => x.FlightId == relevantFlight.FlightId).FirstOrDefaultAsync();
                     var currentInitial = await _flightContext.InitialLocationItems
-                        .Where(x => x.FlightPlanId == currentPlan.Id).FirstOrDefaultAsync();
-                    UpdateAndAddFlight(relative_to, currentInitial, currentPlan, relevantFlightData, plan,
+                        .Where(x => x.FlightPlanId == plan.Id).FirstOrDefaultAsync();
+                    relevantFlights = await UpdateAndAddFlight(relative_to, currentInitial, plan, relevantFlightData, plan,
                         relevantFlights);
                 }
             }
@@ -158,80 +158,6 @@ namespace FlightControlWeb.Controllers
         }
 
 
-        private async Task<IEnumerable<FlightData>> AddInternalFlights(IEnumerable<FlightData> relevantFlights, IEnumerable<FlightPlan> relevantPlans, DateTime relative_to)
-        {
-            foreach (var plan in relevantPlans)
-            {
-                if (plan.EndTime >= relative_to)
-                {
-                    var relevantFlight = await _flightContext.FlightItems.Where(x => x.FlightId == plan.FlightId)
-                        .FirstOrDefaultAsync();
-                    var relevantFlightData = new FlightData
-                    {
-                        FlightID = relevantFlight.FlightId
-                    };
-
-                    var currentPlan = await _flightContext.FlightPlanItems
-                        .Where(x => x.FlightId == relevantFlight.FlightId).FirstOrDefaultAsync();
-                    var currentInitial = await _flightContext.InitialLocationItems
-                        .Where(x => x.FlightPlanId == currentPlan.Id).FirstOrDefaultAsync();
-
-                    double secondsInFlight = (relative_to - currentInitial.DateTime).TotalSeconds;
-
-                    IEnumerable<Segment> planSegments = await _flightContext.SegmentItems
-                        .Where(x => x.FlightPlanId == currentPlan.Id).ToListAsync();
-                    SortedDictionary<int, Segment> planSegmentDict = new SortedDictionary<int, Segment>();
-                    int index = 0;
-                    foreach (var planSegment in planSegments)
-                    {
-                        planSegmentDict.Add(index, planSegment);
-                        index++;
-                    }
-
-                    foreach (KeyValuePair<int, Segment> k in planSegmentDict)
-                    {
-                        // if the seconds that passed since the beginning of the flight are greater 
-                        // than this segment's duration
-                        if (secondsInFlight > k.Value.TimeSpanSeconds)
-                        {
-                            secondsInFlight -= k.Value.TimeSpanSeconds;
-                        }
-                        else
-                        {
-                            int secondsInSegment = k.Value.TimeSpanSeconds - (int)secondsInFlight;
-                            double lastLatitude;
-                            double lastLongitude;
-                            if (k.Key == 0)
-                            {
-                                lastLongitude = currentInitial.Longitude;
-                                lastLatitude = currentInitial.Latitude;
-                            }
-                            else
-                            {
-                                var previousSegment = planSegmentDict[k.Key - 1];
-                                lastLongitude = previousSegment.Longitude;
-                                lastLatitude = previousSegment.Latitude;
-                            }
-
-                            double delta = (secondsInSegment / (double)k.Value.TimeSpanSeconds);
-                            relevantFlightData.Latitude =
-                                lastLatitude + (delta * (k.Value.Latitude - lastLatitude));
-                            relevantFlightData.Longitude =
-                                lastLongitude + (delta * (k.Value.Longitude - lastLongitude));
-                            planSegmentDict.Clear();
-                            break;
-                        }
-                    }
-
-                    relevantFlightData.Passengers = plan.Passengers;
-                    relevantFlightData.CompanyName = plan.CompanyName;
-                    relevantFlightData.CurrDateTime = relative_to;
-                    relevantFlights = relevantFlights.Append(relevantFlightData);
-                }
-            }
-
-            return relevantFlights;
-        }
 
         private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> relevantFlights, DateTime relative_to)
         {
@@ -276,7 +202,7 @@ namespace FlightControlWeb.Controllers
 
             IEnumerable<FlightData> relevantFlights = new List<FlightData>();
 
-            relevantFlights = await AddInternalFlights(relevantFlights, relevantPlans, relative_to);
+            relevantFlights = await FindRelevantInternalFlights(relevantPlans, relative_to);
 
             if (sync_all != null)
             {
