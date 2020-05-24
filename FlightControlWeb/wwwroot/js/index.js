@@ -46,6 +46,7 @@ function initMap() {
 // the function polls data from the server (receiving all flights).
 function getFlightsData() {
     let nowUTC = new Date().toISOString();
+    nowUTC = nowUTC.split('.')[0] + "Z";
     $.get(`api/flights?relative_to=${nowUTC}&sync_all`, function (allFlights, status) {
         if (toDeleteMarkers) {
             map.removeLayer(markersLayer);
