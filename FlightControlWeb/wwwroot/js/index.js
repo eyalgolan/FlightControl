@@ -54,6 +54,13 @@ function getFlightsData() {
         }
         renderFlightData(allFlights);
         createMarkers(allFlights);
+
+        // if the selected flight doesn't exist anymore (because it has finished).
+        if (!isFlightExisting(allFlights)) {
+            deletePolyLine();
+            deleteFromFlightDetails(currSelectedID);
+        }
+
     });
 }
 
@@ -219,7 +226,7 @@ function selectedIconGet(marker) {
     marker.setIcon(selectedIcon);
 }
 
-// the function deletes a row from the flight table.
+// the function deletes a flight from the application by its flightID.
 function deleteOnClick() {
     $(document).on("click", ".deleteIcon", function () {
         // delete the row from the table.
@@ -292,7 +299,9 @@ function renderFlightDetails(flightPlan, flightID) {
 
     // creating the row of the table and appending it.
     let departureTime = new Date(flightPlan.initial_location.dateTime).toISOString();
+    departureTime = departureTime.split('.')[0] + "Z";
     let arrivalTime = calculateArrivalTime(flightPlan);
+    arrivalTime = arrivalTime.split('.')[0] + "Z";
 
     let segLen = flightPlan.segments.length - 1;
     let rowHTML = `<tr>
@@ -364,3 +373,15 @@ function initDropzone() {
     };
 }
 
+// the function returns 1 if the currSelectedID exists in the list of the 
+// flights we get from the server, otherwise 0.
+function isFlightExisting(allFlights) {
+    let flag = 0;
+    for (let i = 0; i < allFlights.length; i++) {
+        if (currSelectedID !== 0 && allFlights[i].flight_id === currSelectedID) {
+            flag = 1;
+            break;
+        }
+    }
+    return flag;
+}
