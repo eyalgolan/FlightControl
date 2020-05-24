@@ -1,5 +1,4 @@
 ﻿let map;
-//let flights = [];
 let currSelectedID = 0;
 
 let markersLayer;
@@ -16,7 +15,7 @@ $(document).ready(function () {
     initMap();
     deleteOnClick();
 
-    // polling data every 5 seconds.
+    // polling data every second.
     setInterval(getFlightsData, 1000);
 })
 
@@ -41,6 +40,77 @@ function initMap() {
             deletePolyLine();
             deleteFromFlightDetails(currSelectedID);
         };
+    });
+}
+
+// the function polls data from the server (receiving all flights).
+function getFlightsData() {
+    let nowUTC = new Date().toISOString();
+    $.get(`api/flights?relative_to=${nowUTC}&sync_all`, function (allFlights, status) {
+        if (toDeleteMarkers) {
+            map.removeLayer(markersLayer);
+            toDeleteMarkers = false;
+        }
+        renderFlightData(allFlights);
+        createMarkers(allFlights);
+    });
+}
+
+// the function renders the data into the flights table.
+function renderFlightData(data) {
+    let isMyFlight;
+    $("#flights tbody").html('');
+    $.each(data, function (index, flight) {
+        // create the row of the flight.
+        let rowHTML = `
+            <tr id="${flight.flight_id}">
+            <th scope="row">${flight.flight_id}</th>
+            <td>${flight.company_name}</td>`;
+
+        // if its a my flight.
+        if (!flight.is_external) {
+            isMyFlight = true;
+            rowHTML += `<td>No</td>
+                        <td><i value="Delete" type="button" `+
+                `alt="Delete4" class="deleteIcon fa fa-trash"></i></td>`;
+        } else {
+            // its external flight.
+            isMyFlight = false;
+            rowHTML += `<td>Yes</td>
+                        <td> </td>`;
+        }
+        rowHTML += `</tr>`;
+        let rowHTML$ = $(rowHTML);
+
+        // when a row is clicked we render the flight details table.
+        rowHTML$.click(function (e) {
+            if (!e.target.classList.contains('deleteIcon')) {
+                // getting the flightID we wish to paint
+                let indexDelAgent = $(this).closest('tr').index('#flights tr');
+                let flightTH = document.getElementById("flights").rows[indexDelAgent].cells[0];
+                currSelectedID = flightTH.innerText;
+
+                $.get(`api/FlightPlan/${flight.flight_id}`, function (flightPlan, status) {
+                    // painting the row.
+                    $(this).addClass('text-info').siblings().removeClass('text-info');
+                    renderFlightDetails(flightPlan, flight.flight_id);
+                    // deletes previous poly line.
+                    deletePolyLine();
+                    // draw the new poly line.
+                    createPolyline(flightPlan);
+                });
+            }
+        });
+
+        if (isMyFlight) {
+            // if it's my flight add to beginning of table.
+            $("#flights tbody").prepend(rowHTML$);
+        } else {
+            // if it's external flight add to end of table.
+            $("#flights tbody").append(rowHTML$);
+        }
+        // paint the selceted row (each time we get data from server we need to re-paint it).
+        paintRow();
     });
 }
 
@@ -77,20 +147,12 @@ function createMarkers(flights) {
             // deletes previous poly line.
             deletePolyLine();
 
-            // TODO: GET requesnt /api/FlightPlan/{id} (instead of the loop)
-            let f;
-            for (let i = 0; i < flights.length; ++i) {
-                if (e.target.options.id === flights[i].flight_id) {
-                    f = flights[i];
-                    break;
-                }
-            }
-
-            // draws the polyline of the selected flight.
-            createPolyline(f.flightPlan);
-
-            // render the flight details table.
-            renderFlightDetails(f);
+            $.get(`api/FlightPlan/${currSelectedID}`, function (flightPlan, status) {
+                // draws the polyline of the selected flight.
+                createPolyline(flightPlan);
+                // render the flight details table.
+                renderFlightDetails(flightPlan, currSelectedID);
+            });
         });
 
         if (markerID === currSelectedID) {
@@ -185,7 +247,7 @@ function deleteOnClick() {
 // the function receives flightID from flight table and deletes it from flight details table.
 function deleteFromFlightDetails(id) {
     const elem = document.querySelector("#flight_details tbody");
-    if (elem.childNodes.length) {
+    if (elem.childNodes.length && currSelectedID !== 0) {
         let flightDetailsTH = document.getElementById("flight_details").rows[1].cells[0];
         let detailsId = flightDetailsTH.innerText;
         if (detailsId === id) {
@@ -194,101 +256,6 @@ function deleteFromFlightDetails(id) {
             $("#flight_details tbody").html('');
         }
     }
-}
-
-// the function polls data from the server (receiving all flights).
-function getFlightsData() {
-    //$.get("api/Flights", function (data, status) {
-    //    flights = data;
-    //    if (toDeleteMarkers) {
-    //        map.removeLayer(markersLayer);
-    //        toDeleteMarkers = false;
-    //    }
-    //    renderFlightData(data);
-    //    createMarkers();
-    //});
-
-    /*ADD AFTER MERGING WITH SERVER:*/
-    let nowUTC = new Date().toISOString();
-   /* $.get(`api/flights?relative_to=${nowUTC}`, function (allFlights, status) {
-        renderFlightData(allFlights);
-    });*/
-    //console.log(nowUTC);
-    $.get(`api/flights?relative_to=${nowUTC}&sync_all`, function (allFlights, status) {
-        //let flights = allFlights;
-        //console.log(flights);
-        if (toDeleteMarkers) {
-            map.removeLayer(markersLayer);
-            toDeleteMarkers = false;
-        }
-        renderFlightData(allFlights);
-        createMarkers(allFlights);
-    });
-}
-
-// the function renders the data into the flights table.
-function renderFlightData(data) {
-    let isMyFlight;
-    $("#flights tbody").html('');
-    $.each(data, function (index, flight) {
-        // create the row of the flight.
-        let rowHTML = `
-            <tr id="${flight.flight_id}">
-            <th scope="row">${flight.flight_id}</th>
-            <td>${flight.company_name}</td>`;
-
-        // if its a my flight.
-        if (!flight.is_external) {
-            isMyFlight = true;
-            rowHTML += `<td>No</td>
-                        <td><i value="Delete" type="button" `+
-                `alt="Delete4" class="deleteIcon fa fa-trash"></i></td>`;
-        } else {
-            // its external flight.
-            isMyFlight = false;
-            rowHTML += `<td>Yes</td>
-                        <td> </td>`;
-        }
-        rowHTML += `</tr>`;
-        let rowHTML$ = $(rowHTML);
-
-        // when a row is clicked we render the flight details table.
-        rowHTML$.click(function (e) {
-            if (!e.target.classList.contains('deleteIcon')) {
-                // getting the flightID we wish to paint
-                let indexDelAgent = $(this).closest('tr').index('#flights tr');
-                let flightTH = document.getElementById("flights").rows[indexDelAgent].cells[0];
-                currSelectedID = flightTH.innerText;
-                // painting the row.
-                //$(this).addClass('text-info').siblings().removeClass('text-info');
-
-                //renderFlightDetails(flight);
-                /*ADD AFTER MERGING WITH SERVER:*/
-                $.get(`api/FlightPlan/${flight.flight_id}`, function (flightPlan, status) {
-                    // painting the row.
-                    $(this).addClass('text-info').siblings().removeClass('text-info');
-                    renderFlightDetails(flightPlan);
-                });
-                
-
-                // deletes previous poly line.
-                deletePolyLine();
-
-                // draw the new poly line.
-                createPolyline(flight.flightPlan);
-            }
-        });
-
-        if (isMyFlight) {
-            // if it's my flight add to beginning of table.
-            $("#flights tbody").prepend(rowHTML$);
-        } else {
-            // if it's external flight add to end of table.
-            $("#flights tbody").append(rowHTML$);
-        }
-        // paint the selceted row (each time we get data from server we need to re-paint it).
-        paintRow();
-    });
 }
 
 // the function paints a row by flightID
@@ -313,8 +280,8 @@ function addTitle() {
 }
 
 // the function renders the details of a flight to the table.
-function renderFlightDetails(flightPlan) {
-    debugger;
+function renderFlightDetails(flightPlan, flightID) {
+
     // clearing previous information.
     $("#flight_details thead").html('');
     $("#flight_details tbody").html('');
@@ -323,18 +290,17 @@ function renderFlightDetails(flightPlan) {
     addTitle();
 
     // creating the row of the table and appending it.
-    /*CHANGE AFTER MERGING WITH SERVER: [without flight.]*/
-    let departureTime = new Date(flightPlan.initial_location.date_time).toISOString();
+    let departureTime = new Date(flightPlan.initial_location.dateTime).toISOString();
     let arrivalTime = calculateArrivalTime(flightPlan);
 
     let segLen = flightPlan.segments.length - 1;
     let rowHTML = `<tr>
-                   <th scope="row">${flightPlan.flight_id}</th>
+                   <th scope="row">${flightID}</th>
                    <td>${flightPlan.company_name}</td>` +
-                  `<td>(${flightPlan.initial_location.latitude}, ` +
-                  `${flightPlan.initial_location.longitude})</td>` +
-                  `<td>(${flightPlan.segments[segLen].latitude}, ` +
-                  `${flightPlan.segments[segLen].longitude})</td>
+        `<td>(${flightPlan.initial_location.latitude}, ` +
+        `${flightPlan.initial_location.longitude})</td>` +
+        `<td>(${flightPlan.segments[segLen].latitude}, ` +
+        `${flightPlan.segments[segLen].longitude})</td>
                    <td>${departureTime}</td>
                    <td>${arrivalTime}</td>
                    <td>${flightPlan.passengers}</td>
@@ -348,12 +314,11 @@ function calculateArrivalTime(flightPlan) {
     let len = flightPlan.segments.length;
     let sum = 0;
     for (let i = 0; i < len; ++i) {
-        sum += flightPlan.segments[i].timespan_seconds;
-
+        sum += flightPlan.segments[i].timeSpanSeconds;
     }
 
     // adding the seconds and converting to the required format (yyyy-MM-ddTHH:mm:ssZ).
-    let departureTime = new Date(flightPlan.initial_location.date_time);
+    let departureTime = new Date(flightPlan.initial_location.dateTime);
     departureTime.setSeconds(departureTime.getSeconds() + sum);
     let arrivalTime = departureTime.toISOString();
     return arrivalTime;
@@ -397,5 +362,4 @@ function initDropzone() {
         }
     };
 }
-
 
