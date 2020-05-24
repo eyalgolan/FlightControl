@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace FlightControlWeb.Controllers
 {
@@ -177,10 +178,11 @@ namespace FlightControlWeb.Controllers
 
                     if (result.IsSuccessStatusCode)
                     {
-                        var response = result.Content.ReadAsAsync<IEnumerable<FlightData>>().Result;
-                        
-                        Console.WriteLine("1");
-                        foreach (var flightData in response)
+                        var response = await result.Content.ReadAsStreamAsync();
+                        var input = response.ToString();
+                        IEnumerable<FlightData> responseObj = JsonConvert.DeserializeObject<IEnumerable<FlightData>>(input);
+
+                        foreach (var flightData in responseObj)
                         {
                             var flight = new Flight()
                             {
@@ -211,7 +213,6 @@ namespace FlightControlWeb.Controllers
             DateTime relativeTo = DateTime.Parse(relative_to);
             relativeTo = relativeTo.ToUniversalTime();
             
-            Console.WriteLine(relative_to);
             var relevantPlans = await FindPlanStartingBefore(relativeTo);
 
             IEnumerable<FlightData> internalFlights = new List<FlightData>();
