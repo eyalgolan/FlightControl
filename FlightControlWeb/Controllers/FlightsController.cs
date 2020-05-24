@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -156,36 +158,45 @@ namespace FlightControlWeb.Controllers
             return relevantFlights;
         }
 
-
-        private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> relevantFlights,
+        private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> externalFlights,
             string relativeTo)
         {
             //todo need to check this works
             var servers = await _flightContext.ServerItems.ToListAsync();
             foreach (var server in servers)
             {
-                var _apiUrl = server.ServerUrl + "/api/Flights?relative_to=" + relativeTo;
+                var _apiUrl = server.ServerUrl + "/api/Flights?relative_to=" + "2020-05-24T14:56:24:315Z";
                 var _baseAddress = server.ServerUrl;
                 using (var client = new HttpClient())
                 {
                     client.BaseAddress = new Uri(_baseAddress);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    
                     var result = await client.GetAsync(_apiUrl);
 
                     if (result.IsSuccessStatusCode)
                     {
                         var response = result.Content.ReadAsAsync<IEnumerable<FlightData>>().Result;
-                        foreach (var flight in response)
+                        
+                        Console.WriteLine("1");
+                        foreach (var flightData in response)
                         {
-                            flight.IsExternal = true;
-                            relevantFlights.Append(flight);
+                            var flight = new Flight()
+                            {
+                                FlightId = flightData.FlightID,
+                                OriginServer = server.ServerUrl,
+                                IsExternal = true
+                            };
+
+                            await _flightContext.ExternalFlightItems.AddAsync(flight);
+                            externalFlights = externalFlights.Append(flightData);
                         }
                     }
                 }
             }
 
-            return relevantFlights;
+            return externalFlights;
         }
 
         /*
@@ -200,19 +211,21 @@ namespace FlightControlWeb.Controllers
             DateTime relativeTo = DateTime.Parse(relative_to);
             relativeTo = relativeTo.ToUniversalTime();
             
-            
             Console.WriteLine(relative_to);
             var relevantPlans = await FindPlanStartingBefore(relativeTo);
 
-            IEnumerable<FlightData> relevantFlights = new List<FlightData>();
+            IEnumerable<FlightData> internalFlights = new List<FlightData>();
+            IEnumerable<FlightData> externalFlights = new List<FlightData>();
 
-            relevantFlights = await FindRelevantInternalFlights(relevantPlans, relativeTo);
+            internalFlights = await FindRelevantInternalFlights(relevantPlans, relativeTo);
 
             var requestValue = Request.QueryString.Value;
             if (requestValue.Contains("sync_all"))
-                relevantFlights = await AddExternalFlights(relevantFlights, relative_to);
+                externalFlights = await AddExternalFlights(externalFlights, relative_to);
 
-            return relevantFlights;
+            internalFlights = internalFlights.Concat(externalFlights);
+
+            return internalFlights;
         }
 
 
