@@ -265,14 +265,14 @@ function paintRow() {
 }
 
 // the function adds the title to the flight details table.
-function addTitle() {
+function addTitle() {    
     let title = `<tr>
                 <th scope="col">Flight ID</th>
                 <th scope="col">Airline</th>
                 <th scope="col">Initial Location</th>
                 <th scope="col">Destination</th>
-                <th scope="col">Departure Time</th>
-                <th scope="col">Arrival Time</th>
+                <th scope="col">Departure Universal Time</th>
+                <th scope="col">Arrival Universal Time</th>
                 <th scope="col">Passengers</th>
                 </tr>`;
     let title$ = $(title);
