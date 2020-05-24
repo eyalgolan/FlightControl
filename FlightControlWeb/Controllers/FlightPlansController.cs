@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Http.Results;
 using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -58,6 +58,10 @@ namespace FlightControlWeb.Controllers
             return flightPlanData;
         }
 
+        private async Task<FlightPlan> GetExternalFlightPlan(string id, FlightPlan flightPlan)
+        {
+
+        }
         /*
          * Once the user types or ask for the GET with the flight id, this method finds
          * the specific flight we look for in our DB. if it exists, we return it,
@@ -72,6 +76,11 @@ namespace FlightControlWeb.Controllers
             var flightPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
 
             if (flightPlan == null) return NotFound();
+
+            if (flightPlan.IsExternal)
+            {
+                return await GetExternalFlightPlan(id, flightPlan);
+            }
 
             return await BuildMatchingFlightPlan(id, flightPlan);
         }

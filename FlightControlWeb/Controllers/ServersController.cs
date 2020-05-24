@@ -49,7 +49,7 @@ namespace FlightControlWeb.Controllers
             }
             catch (DbUpdateException)
             {
-                if (ServerExists(server.ServerID))
+                if (ServerExists(server.ServerId))
                 {
                     return Conflict();
                 }
@@ -59,7 +59,7 @@ namespace FlightControlWeb.Controllers
                 }
             }
 
-            return CreatedAtAction("GetAllServers", new { id = server.ServerID }, server);
+            return CreatedAtAction("GetAllServers", new { id = server.ServerId }, server);
         }
 
         // DELETE: api/Servers/5
@@ -71,9 +71,9 @@ namespace FlightControlWeb.Controllers
         * from our DB
         */
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Server>> DeleteServer(string serverId)
+        public async Task<ActionResult<Server>> DeleteServer(string id)
         {
-            var server = await _context.ServerItems.Where(x => x.ServerID == serverId).FirstOrDefaultAsync();
+            var server = await _context.ServerItems.Where(x => x.ServerId == id).FirstOrDefaultAsync();
             if (server == null)
             {
                 return NotFound();
@@ -90,7 +90,7 @@ namespace FlightControlWeb.Controllers
         */
         private bool ServerExists(string id)
         {
-            return _context.ServerItems.Any(e => e.ServerID == id);
+            return _context.ServerItems.Any(e => e.ServerId == id);
         }
     }
 }
