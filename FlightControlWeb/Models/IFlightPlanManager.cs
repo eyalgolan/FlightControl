@@ -7,11 +7,6 @@ namespace FlightControlWeb.Models
 {
     interface IFlightPlanManager
     {
-        public FlightPlan AddFlightPlan(FlightPlan inputFlightPlan);
-        public FlightPlan GetFlightPlanByFlightId(IEnumerable<FlightPlan> allFlightPlans, string inputFlightId);
-
-        public void CreateId(FlightPlan newFlightPlan);
-
-        public void CreateId(InitialLocation newInitialiLocation);
+        public FlightPlan AddFlightPlan(Flight newFlight, int passengers, string companyName);
     }
 }

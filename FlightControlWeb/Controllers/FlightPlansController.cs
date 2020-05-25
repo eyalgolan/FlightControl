@@ -129,39 +129,6 @@ namespace FlightControlWeb.Controllers
         }
 
         /*
-         * This method creates a new Flight and add it to our DBs.
-         * then, it returns the new made flight object.
-         */
-        private Flight AddFlight()
-        {
-            var newFlight = new Flight();
-            _flightManager.CreateId(newFlight);
-            _flightContext.FlightItems.Add(newFlight);
-
-            return newFlight;
-        }
-
-        /*
-         * This method defines a new Flight Plan and add it to our DBs.
-         * then, it returns the new made flight plan object.
-         */
-        private FlightPlan AddFlightPlan(Flight newFlight, int passengers, string companyName)
-        {
-            var newFlightPlan = new FlightPlan
-            {
-                FlightId = newFlight.FlightId,
-                IsExternal = false,
-                OriginServer = "-1"
-            };
-
-            newFlightPlan.Passengers = passengers;
-            newFlightPlan.CompanyName = companyName;
-            _flightContext.FlightPlanItems.Add(newFlightPlan);
-
-            return newFlightPlan;
-        }
-
-        /*
          * This method adds new initial locations we get from each flight in our DBs
          * and return it.
          */
@@ -248,10 +215,12 @@ namespace FlightControlWeb.Controllers
             DateTime dateTime = bodyObj["initial_location"]["date_time"];
             var segmentsObj = bodyObj["segments"];
             
-            var newFlight = AddFlight();
+            var newFlight = _flightManager.AddFlight();
+            await _flightContext.FlightItems.AddAsync(newFlight);
 
-            var newFlightPlan = AddFlightPlan(newFlight, passengers, companyName);
-
+            var newFlightPlan = _flightPlanManager.AddFlightPlan(newFlight, passengers, companyName);
+            await _flightContext.FlightPlanItems.AddAsync(newFlightPlan);
+            
             var newInitialLocation = AddInitialLocation(newFlightPlan, longitude, latitude, dateTime);
 
             DateTime end = AddSegments(dateTime, segmentsObj, newFlightPlan);

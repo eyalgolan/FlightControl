@@ -24,40 +24,16 @@ namespace FlightControlWeb.Models
 
             newFlight.FlightId = id;
         }
-
-        public void AddFlightPlan(FlightPlan fp, bool isExternalInput)
+        /*
+         * This method creates a new Flight and add it to our DBs.
+         * then, it returns the new made flight object.
+         */
+        public Flight AddFlight()
         {
-            throw new NotImplementedException();
-        }
+            var newFlight = new Flight();
+            CreateId(newFlight);
 
-        public void DeleteFlight(Flight f)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Flight> GetAllFlights(DateTime dt)
-        {
-            throw new NotImplementedException();
-        }
-
-        public FlightPlan GetFlightById(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Flight> GetServerFlights(string dt)
-        {
-            throw new NotImplementedException();
-        }
-
-        public double GetFlightLatitude(Flight f)
-        {
-            throw new NotImplementedException();
-        }
-
-        public double GetFlightLongitude(Flight f)
-        {
-            throw new NotImplementedException();
+            return newFlight;
         }
     }
 }

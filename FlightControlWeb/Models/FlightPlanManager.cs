@@ -6,31 +6,24 @@ namespace FlightControlWeb.Models
 {
     public class FlightPlanManager : IFlightPlanManager
     {
-        private static int flightPlanCount = 0;
-        private static int initialLocationCount = 0;
-        public FlightPlan AddFlightPlan(FlightPlan inputFlightPlan)
+        /*
+         * This method defines a new Flight Plan and add it to our DBs.
+         * then, it returns the new made flight plan object.
+         */
+        public FlightPlan AddFlightPlan(Flight newFlight, int passengers, string companyName)
         {
-            Flight newFlight = new Flight();
-            throw new NotImplementedException();
-        }
+            var newFlightPlan = new FlightPlan
+            {
+                FlightId = newFlight.FlightId,
+                IsExternal = false,
+                OriginServer = "-1"
+            };
 
-        public FlightPlan GetFlightPlanByFlightId(IEnumerable<FlightPlan> allFlightPlans, string inputFlightId)
-        {
-            var flightPlan = allFlightPlans.Single(x => x.FlightId == inputFlightId);
+            newFlightPlan.Passengers = passengers;
+            newFlightPlan.CompanyName = companyName;
 
-            return flightPlan;
+            return newFlightPlan;
         }
-
-        public void CreateId(FlightPlan newFlightPlan)
-        {
-            newFlightPlan.Id = flightPlanCount;
-            flightPlanCount++;
-        }
-
-        public void CreateId(InitialLocation newInitialLocation)
-        {
-            newInitialLocation.Id = initialLocationCount;
-            initialLocationCount++;
-        }
+    }
     }
 }
