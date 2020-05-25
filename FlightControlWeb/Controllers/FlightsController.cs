@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -159,46 +160,79 @@ namespace FlightControlWeb.Controllers
             return relevantFlights;
         }
 
-        private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> externalFlights,
-            string relativeTo)
+        private async Task<dynamic> GetExternalFlight(string _apiUrl, string _baseAddress)
+        {
+            dynamic result;
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(_baseAddress);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                result = await client.GetStringAsync(_apiUrl);
+            }
+
+            return result;
+        }
+
+        private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> relevantFlights, string relative_to)
         {
             //todo need to check this works
             var servers = await _flightContext.ServerItems.ToListAsync();
             foreach (var server in servers)
             {
-                var _apiUrl = server.ServerUrl + "/api/Flights?relative_to=" + "2020-05-24T14:56:24:315Z";
-                var _baseAddress = server.ServerUrl;
-                using (var client = new HttpClient())
+                string _apiUrl = server.ServerUrl + "/api/Flights?relative_to=" + relative_to;
+                string _baseAddress = server.ServerUrl;
+
+                dynamic result = null;
+                try
                 {
-                    client.BaseAddress = new Uri(_baseAddress);
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    
-                    var result = await client.GetAsync(_apiUrl);
+                    result = await GetExternalFlight(_apiUrl, _baseAddress);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
 
-                    if (result.IsSuccessStatusCode)
+                if (result == null)
+                {
+                    return relevantFlights;
+                }
+
+                dynamic jsonResult;
+                try
+                {
+                    jsonResult = JsonConvert.DeserializeObject<IEnumerable<FlightData>>(result);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    return relevantFlights;
+                }
+
+                foreach (var item in jsonResult)
+                {
+                    FlightData newFlightData = new FlightData()
                     {
-                        var response = await result.Content.ReadAsStreamAsync();
-                        var input = response.ToString();
-                        IEnumerable<FlightData> responseObj = JsonConvert.DeserializeObject<IEnumerable<FlightData>>(input);
+                        FlightID = item["flight_id"],
+                        Latitude = item["latitude"],
+                        Passengers = item["passengers"],
+                        CompanyName = item["company_name"],
+                        CurrDateTime = item["date_time"],
+                        IsExternal = true
+                    };
+                    relevantFlights = relevantFlights.Append(newFlightData);
 
-                        foreach (var flightData in responseObj)
-                        {
-                            var flight = new Flight()
-                            {
-                                FlightId = flightData.FlightID,
-                                OriginServer = server.ServerUrl,
-                                IsExternal = true
-                            };
-
-                            await _flightContext.ExternalFlightItems.AddAsync(flight);
-                            externalFlights = externalFlights.Append(flightData);
-                        }
-                    }
+                    Flight newFlight = new Flight()
+                    {
+                        FlightId = item["flight_id"],
+                        OriginServer = server.ServerUrl,
+                        IsExternal = true
+                    };
+                    await _flightContext.ExternalFlightItems.AddAsync(newFlight);
                 }
             }
-
-            return externalFlights;
+            return relevantFlights;
         }
 
         /*
