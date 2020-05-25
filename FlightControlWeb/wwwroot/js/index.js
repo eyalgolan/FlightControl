@@ -368,6 +368,13 @@ function initDropzone() {
             myDropzone = this;
             myDropzone.on("success", function (file, response) {
                 myDropzone.removeFile(file);
+                let error = document.getElementById("dispalyError");
+                error.innerHTML = "";
+            });
+            myDropzone.on("error", function (file, response) {
+                myDropzone.removeFile(file);
+                let error = document.getElementById("dispalyError");
+                error.innerHTML = "Insert JSON file in a valid format";
             });
         }
     };
