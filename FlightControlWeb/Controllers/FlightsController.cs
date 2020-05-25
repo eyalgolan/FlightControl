@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -165,9 +166,9 @@ namespace FlightControlWeb.Controllers
             dynamic result;
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(_baseAddress);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //client.BaseAddress = new Uri(_baseAddress);
+                //client.DefaultRequestHeaders.Accept.Clear();
+                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 result = await client.GetStringAsync(_apiUrl);
             }
@@ -202,7 +203,7 @@ namespace FlightControlWeb.Controllers
                 dynamic jsonResult;
                 try
                 {
-                    jsonResult = JsonConvert.DeserializeObject<IEnumerable<FlightData>>(result);
+                    jsonResult = JsonConvert.DeserializeObject(result);
                 }
                 catch (Exception e)
                 {
@@ -216,6 +217,7 @@ namespace FlightControlWeb.Controllers
                     {
                         FlightID = item["flight_id"],
                         Latitude = item["latitude"],
+                        Longitude = item["longitude"],
                         Passengers = item["passengers"],
                         CompanyName = item["company_name"],
                         CurrDateTime = item["date_time"],
@@ -223,13 +225,19 @@ namespace FlightControlWeb.Controllers
                     };
                     relevantFlights = relevantFlights.Append(newFlightData);
 
-                    Flight newFlight = new Flight()
+                    string flightId = item["flight_id"];
+                    bool flightInDb = await _flightContext.ExternalFlightItems.AnyAsync(x => x.FlightId == flightId);
+                    if (!flightInDb)
                     {
-                        FlightId = item["flight_id"],
-                        OriginServer = server.ServerUrl,
-                        IsExternal = true
-                    };
-                    await _flightContext.ExternalFlightItems.AddAsync(newFlight);
+                        Flight newFlight = new Flight()
+                        {
+                            FlightId = item["flight_id"],
+                            OriginServer = server.ServerUrl,
+                            IsExternal = true
+                        };
+                        await _flightContext.ExternalFlightItems.AddAsync(newFlight);
+                        await _flightContext.SaveChangesAsync();
+                    }
                 }
             }
             return relevantFlights;
