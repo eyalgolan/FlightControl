@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Http.Results;
 using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -24,7 +26,7 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class FlightPlansController : ControllerBase
     {
-        private readonly IDataContext _flightContext;
+        private readonly FlightContext _flightContext;
         private readonly IFlightManager _flightManager;
         private readonly IFlightPlanManager _flightPlanManager;
 
@@ -58,6 +60,25 @@ namespace FlightControlWeb.Controllers
             return flightPlanData;
         }
 
+        private async Task<ActionResult<FlightPlanData>> GetExternalFlightPlan(string id, Flight flight)
+        {
+            var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
+            var _baseAddress = flight.OriginServer;
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(_baseAddress);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var result = await client.GetAsync(_apiUrl);
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var response = result.Content.ReadAsAsync<FlightPlanData>().Result;
+                    return response;
+                }
+                return NotFound();
+            }
+        }
         /*
          * Once the user types or ask for the GET with the flight id, this method finds
          * the specific flight we look for in our DB. if it exists, we return it,
@@ -67,8 +88,12 @@ namespace FlightControlWeb.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<FlightPlanData>> GetFlightPlan(string id)
         {
-            IEnumerable<FlightPlan> allFlightPlans = await _flightContext.FlightPlanItems.ToListAsync();
+            var flight = await _flightContext.ExternalFlightItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
 
+            if (flight.IsExternal)
+            {
+                return await GetExternalFlightPlan(id, flight);
+            }
             var flightPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
 
             if (flightPlan == null) return NotFound();
@@ -125,7 +150,8 @@ namespace FlightControlWeb.Controllers
             var newFlightPlan = new FlightPlan
             {
                 FlightId = newFlight.FlightId,
-                IsExternal = false
+                IsExternal = false,
+                OriginServer = "-1"
             };
 
             newFlightPlan.Passengers = passengers;
@@ -221,7 +247,7 @@ namespace FlightControlWeb.Controllers
             double latitude = bodyObj["initial_location"]["latitude"];
             DateTime dateTime = bodyObj["initial_location"]["date_time"];
             var segmentsObj = bodyObj["segments"];
-
+            
             var newFlight = AddFlight();
 
             var newFlightPlan = AddFlightPlan(newFlight, passengers, companyName);
