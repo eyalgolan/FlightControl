@@ -25,5 +25,4 @@ namespace FlightControlWeb.Models
             return newFlightPlan;
         }
     }
-    }
 }
