@@ -51,10 +51,10 @@ namespace FlightControlWeb.Controllers
                 await _flightContext.SegmentItems.Where(x => x.FlightPlanId == flightPlan.Id).ToListAsync();
             var flightPlanData = new FlightPlanData
             {
-                passengers = flightPlan.Passengers,
-                company_name = flightPlan.CompanyName,
-                initial_location = matchingInitialLocation,
-                segments = matchingSegments
+                Passengers = flightPlan.Passengers,
+                CompanyName = flightPlan.CompanyName,
+                InitialLocation = matchingInitialLocation,
+                Segments = matchingSegments
             };
 
             return flightPlanData;

@@ -14,7 +14,5 @@ namespace FlightControlWeb.Models
         [Required] public bool IsExternal { get; set; }
         public DateTime EndTime { get; set; }
         public string OriginServer { get; set; }
-        //public InitialLocation InitLocation { get; set; }
-        //public IEnumerable<Segment> Segments { get; set; }
     }
 }
