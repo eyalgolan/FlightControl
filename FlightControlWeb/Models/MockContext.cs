@@ -12,7 +12,8 @@ namespace FlightControlWeb.Models
         public DbSet<FlightPlan> FlightPlanItems { get; set; }
         public DbSet<InitialLocation> InitialLocationItems { get; set; }
         public DbSet<Segment> SegmentItems { get; set; }
-
+        public DbSet<Flight> ExternalFlightItems { get; set; }
+        public DbSet<Server> ServerItems { get; set; }
         public Task SaveChangesAsync()
         {
             throw new NotImplementedException();

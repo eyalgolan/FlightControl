@@ -13,8 +13,6 @@ namespace FlightControlWeb.Models
         [Required] public string CompanyName { get; set; }
         [Required] public bool IsExternal { get; set; }
         public DateTime EndTime { get; set; }
-
-        //public InitialLocation InitLocation { get; set; }
-        //public IEnumerable<Segment> Segments { get; set; }
+        public string OriginServer { get; set; }
     }
 }
