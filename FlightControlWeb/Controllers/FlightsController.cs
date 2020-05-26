@@ -21,10 +21,12 @@ namespace FlightControlWeb.Controllers
     public class FlightsController : ControllerBase
     {
         private readonly IDataContext _flightContext;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public FlightsController(FlightContext flightContext)
+        public FlightsController(FlightContext flightContext, IHttpClientFactory clientFactory)
         {
             _flightContext = flightContext;
+            _clientFactory = clientFactory;
         }
 
         /*
@@ -162,7 +164,7 @@ namespace FlightControlWeb.Controllers
         private async Task<dynamic> GetExternalFlight(string _apiUrl, string _baseAddress)
         {
             dynamic result;
-            using (var client = new HttpClient())
+            using (var client = _clientFactory.CreateClient())
             {
                 //client.BaseAddress = new Uri(_baseAddress);
                 //client.DefaultRequestHeaders.Accept.Clear();

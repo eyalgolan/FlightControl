@@ -26,15 +26,17 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class FlightPlansController : ControllerBase
     {
+        private readonly IHttpClientFactory _clientFactory;
         private readonly FlightContext _flightContext;
         private readonly IFlightManager _flightManager;
         private readonly IFlightPlanManager _flightPlanManager;
 
-        public FlightPlansController(FlightContext flightContext, IFlightManager flightManager, IFlightPlanManager flightPlanManager)
+        public FlightPlansController(FlightContext flightContext, IFlightManager flightManager, IFlightPlanManager flightPlanManager, IHttpClientFactory clientFactory)
         {
             _flightContext = flightContext;
             _flightPlanManager = flightPlanManager;
             _flightManager = flightManager;
+            _clientFactory = clientFactory;
         }
 
         /*
@@ -64,7 +66,7 @@ namespace FlightControlWeb.Controllers
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
             var _baseAddress = flight.OriginServer;
-            using (var client = new HttpClient())
+            using (var client = _clientFactory.CreateClient())
             {
                 client.BaseAddress = new Uri(_baseAddress);
                 client.DefaultRequestHeaders.Accept.Clear();

@@ -24,6 +24,8 @@ namespace FlightControlWeb
                 opt.UseInMemoryDatabase("FlightList"));
             services.AddSingleton<IFlightManager, FlightManager>();
             services.AddSingleton<IFlightPlanManager, FlightPlanManager>();
+            services.AddHttpClient("api", client =>
+                client.DefaultRequestHeaders.Add("Accept", "application/json"));
             services.AddControllers();
         }
 
