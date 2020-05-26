@@ -21,12 +21,10 @@ namespace FlightControlWeb.Controllers
     public class FlightsController : ControllerBase
     {
         private readonly IDataContext _flightContext;
-        private readonly IFlightManager _flightManager;
 
         public FlightsController(FlightContext flightContext)
         {
             _flightContext = flightContext;
-            _flightManager = new FlightManager();
         }
 
         /*

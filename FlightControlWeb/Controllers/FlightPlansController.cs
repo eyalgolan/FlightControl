@@ -30,11 +30,11 @@ namespace FlightControlWeb.Controllers
         private readonly IFlightManager _flightManager;
         private readonly IFlightPlanManager _flightPlanManager;
 
-        public FlightPlansController(FlightContext flightContext)
+        public FlightPlansController(FlightContext flightContext, IFlightManager flightManager, IFlightPlanManager flightPlanManager)
         {
             _flightContext = flightContext;
-            _flightPlanManager = new FlightPlanManager();
-            _flightManager = new FlightManager();
+            _flightPlanManager = flightPlanManager;
+            _flightManager = flightManager;
         }
 
         /*

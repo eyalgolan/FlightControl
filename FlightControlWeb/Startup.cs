@@ -22,6 +22,8 @@ namespace FlightControlWeb
         {
             services.AddDbContext<FlightContext>(opt =>
                 opt.UseInMemoryDatabase("FlightList"));
+            services.AddSingleton<IFlightManager, FlightManager>();
+            services.AddSingleton<IFlightPlanManager, FlightPlanManager>();
             services.AddControllers();
         }
 
