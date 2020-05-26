@@ -20,13 +20,15 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class FlightsController : ControllerBase
     {
+        private readonly HttpClient _httpClient;
         private readonly IDataContext _flightContext;
         private readonly IFlightManager _flightManager;
 
-        public FlightsController(FlightContext flightContext)
+        public FlightsController(FlightContext flightContext, HttpClient httpClient, IFlightManager flightManager)
         {
             _flightContext = flightContext;
-            _flightManager = new FlightManager();
+            _flightManager = flightManager;
+            _httpClient = httpClient;
         }
 
         /*
@@ -163,15 +165,7 @@ namespace FlightControlWeb.Controllers
 
         private async Task<dynamic> GetExternalFlight(string _apiUrl, string _baseAddress)
         {
-            dynamic result;
-            using (var client = new HttpClient())
-            {
-                //client.BaseAddress = new Uri(_baseAddress);
-                //client.DefaultRequestHeaders.Accept.Clear();
-                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                result = await client.GetStringAsync(_apiUrl);
-            }
+            dynamic result = await _httpClient.GetStringAsync(_apiUrl);
 
             return result;
         }

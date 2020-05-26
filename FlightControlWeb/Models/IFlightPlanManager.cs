@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FlightControlWeb.Models
 {
-    interface IFlightPlanManager
+    public interface IFlightPlanManager
     {
         public FlightPlan AddFlightPlan(Flight newFlight, int passengers, string companyName);
     }

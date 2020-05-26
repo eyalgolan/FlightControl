@@ -26,15 +26,17 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class FlightPlansController : ControllerBase
     {
+        private readonly HttpClient _httpClient;
         private readonly FlightContext _flightContext;
         private readonly IFlightManager _flightManager;
         private readonly IFlightPlanManager _flightPlanManager;
 
-        public FlightPlansController(FlightContext flightContext)
+        public FlightPlansController(FlightContext flightContext, IFlightManager flightManager, IFlightPlanManager flightPlanManager, HttpClient httpClient)
         {
             _flightContext = flightContext;
-            _flightPlanManager = new FlightPlanManager();
-            _flightManager = new FlightManager();
+            _flightPlanManager = flightPlanManager;
+            _flightManager = flightManager;
+            _httpClient = httpClient;
         }
 
         /*
@@ -64,20 +66,17 @@ namespace FlightControlWeb.Controllers
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
             var _baseAddress = flight.OriginServer;
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(_baseAddress);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var result = await client.GetAsync(_apiUrl);
+            _httpClient.BaseAddress = new Uri(_baseAddress);
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var result = await _httpClient.GetAsync(_apiUrl);
 
-                if (result.IsSuccessStatusCode)
-                {
-                    var response = result.Content.ReadAsAsync<FlightPlanData>().Result;
-                    return response;
-                }
-                return NotFound();
+            if (result.IsSuccessStatusCode)
+            {
+                var response = result.Content.ReadAsAsync<FlightPlanData>().Result;
+                return response;
             }
+            return NotFound();
         }
         /*
          * Once the user types or ask for the GET with the flight id, this method finds

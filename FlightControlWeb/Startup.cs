@@ -20,8 +20,12 @@ namespace FlightControlWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpClient("api", client => client.DefaultRequestHeaders.Add("Accept", "application/json"));
             services.AddDbContext<FlightContext>(opt =>
                 opt.UseInMemoryDatabase("FlightList"));
+            services.AddSingleton<IFlightManager, FlightManager>();
+            services.AddSingleton<IFlightPlanManager, FlightPlanManager>();
+
             services.AddControllers();
         }
 
