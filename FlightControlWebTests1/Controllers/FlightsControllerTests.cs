@@ -51,7 +51,26 @@ namespace FlightControlWeb.Controllers.Tests
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent("{'flight_id':thecodebuzz,'city':'USA'}"),
+                    Content = new StringContent("{" +
+                                                "{" +
+                                                "'flight_id': 'HA60377638', " +
+                                                "'longitude': 34.46026097, " +
+                                                "'latitude': 29.255859349999998, " +
+                                                "'passengers': 500, " +
+                                                "'company_name': 'El-Al', " +
+                                                "'date_time': '2020-05-27T15:05:00Z', " +
+                                                "'is_external': false" +
+                                                "}" +
+                                                "{" +
+                                                "'flight_id': 'NC5998837', " +
+                                                "'longitude': 30.632256631999997, " +
+                                                "'latitude': 33.13848776, " +
+                                                "'passengers': 257, " +
+                                                "'company_name': 'swiss', " +
+                                                "'date_time': '2020-05-27T15:05:00Z', " +
+                                                "'is_external': false" +
+                                                "}" +
+                                                "}"),
                 });
 
             var controller = new FlightsController(mockContext.Object, mockClientFactory.Object);
