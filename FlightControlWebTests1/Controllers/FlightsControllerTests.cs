@@ -148,7 +148,7 @@ namespace FlightControlWeb.Controllers.Tests
             mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
 
             // controller
-            var controller = new FlightsController(mockContext.Object, mockClientFactory.Object);
+            var controller = new FlightsController(mockContext.Object, mockClientFactory.Object); // todo ISSUE HERE
             
             var relativeTo = "2020-05-27T15:05:05Z";
 
