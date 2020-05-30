@@ -14,7 +14,7 @@ namespace FlightControlWeb.Controllers.Tests
 {
     public class FlightPlanControllerTests
     {
-        // _sut == system under test
+
         public static readonly DbContextOptionsBuilder<FlightContext> fdbx = new DbContextOptionsBuilder<FlightContext>();
         public static readonly IFlightManager fm = new FlightManager();
         public static readonly IFlightPlanManager fpm = new FlightPlanManager();
@@ -34,6 +34,10 @@ namespace FlightControlWeb.Controllers.Tests
         public async Task GetFlightPlan_ShouldReturnFlightPlan_WhenFlightPlanExists()
         {
             // Arrange
+            var options = new DbContextOptionsBuilder<FlightContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var context = new FlightContext(options);
             var flightPlanId = Guid.NewGuid();
             var flightPlanDto = new FlightPlan
             {
