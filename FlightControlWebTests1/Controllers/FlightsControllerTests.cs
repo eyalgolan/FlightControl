@@ -41,8 +41,8 @@ namespace FlightControlWeb.Controllers.Tests
                 IsExternal = false
             };
 
-            DateTime startTime = DateTime.Parse("2020-05-27T15:05:00Z");
-            DateTime endTime = DateTime.Parse("2020-05-27T16:05:00Z");
+            DateTime startTime = DateTime.Parse("2020-05-27T12:05:00Z");
+            DateTime endTime = DateTime.Parse("2020-05-27T13:05:00Z");
             var testFlightPlan = new FlightPlan()
             {
                 Id = 1,
@@ -94,43 +94,44 @@ namespace FlightControlWeb.Controllers.Tests
             var mockClientFactory = new Mock<IHttpClientFactory>();
 
             // controller
-            var controller = new FlightsController(context, mockClientFactory.Object); // todo ISSUE HERE
+            var controller = new FlightsController(context, mockClientFactory.Object);
 
-            var relativeTo = "2020-05-27T15:05:00Z";
+            var relativeTo = "2020-05-27T15:35:05Z";
 
-            var expectedLatitude = 34.921971 + ((double)305 / 1800) * (39.419221 - 34.921971);
-            var expectedLongitude = 23.240702 + ((double)305 / 1800) * (21.346370 - 23.240702);
+            var expectedLatitude = 34.93446336111111; //todo check this is really correct
+            var expectedLongitude = 23.235439966666664; //todo check this is really correct
             var expectedResult = "{" +
                                  "'flight_id': 'IL30357629'" +
                                  "'longitude':" + expectedLongitude +
                                  "'latitude':" + expectedLatitude +
                                  "'passengers': 247" +
                                  "'company_name': 'United Airlines'" +
-                                 "'date_time': '2020-05-27T15:00:00Z'" +
+                                 "'date_time': '2020-05-27T15:05:00Z'" +
                                  "'is_external': false";
+
+            DateTime relativeToDate = DateTime.Parse(relativeTo);
 
             //Act
             // running method and checking results
-            IEnumerable<FlightData> result = await controller.GetFlights(relativeTo);
+            var result = (await controller.GetFlights(relativeTo)).FirstOrDefault();
 
-            Assert.IsNotNull(result.FirstOrDefault());
-            var resultFlightId = result.FirstOrDefault().FlightID;
-            var resultLongitude = result.FirstOrDefault().Longitude;
-            var resultLatitude = result.FirstOrDefault().Latitude;
-            var resultPassengers = result.FirstOrDefault().Passengers;
-            var resultCompanyName = result.FirstOrDefault().CompanyName;
-            var resultDateTime = result.FirstOrDefault().CurrDateTime;
-            var resultIsExternal = result.FirstOrDefault().IsExternal;
+            Assert.IsNotNull(result);
+            var resultFlightId = result.FlightID;
+            var resultLongitude = result.Longitude;
+            var resultLatitude = result.Latitude;
+            var resultPassengers = result.Passengers;
+            var resultCompanyName = result.CompanyName;
+            var resultDateTime = result.CurrDateTime;
+            var resultIsExternal = result.IsExternal;
             
             //todo need to change this to check if equal to input+what we added to db - maybe only check number of elements?
             Assert.AreEqual("IL30357629", resultFlightId);
-            Assert.AreEqual(expectedLongitude.ToString(), resultLongitude);
-            Assert.AreEqual(expectedLatitude.ToString(), resultLatitude);
+            Assert.AreEqual(expectedLongitude, resultLongitude);
+            Assert.AreEqual(expectedLatitude, resultLatitude);
             Assert.AreEqual(247, resultPassengers);
             Assert.AreEqual("United Airlines", resultCompanyName);
-            Assert.AreEqual("2020-05-27T15:00:00Z", resultDateTime);
+            Assert.AreEqual("27-May-20 3:35:05 PM", resultDateTime.ToString());
             Assert.AreEqual(false, resultIsExternal);
-            //Assert.AreEqual(HttpStatusCode.OK, (HttpStatusCode) result.StatusCode);
 
         }
 
@@ -184,7 +185,7 @@ namespace FlightControlWeb.Controllers.Tests
             // controller
             var controller = new FlightsController(context, mockClientFactory.Object); // todo ISSUE HERE
 
-            var relativeTo = "2020-05-27T15:05:05Z";
+            var relativeTo = "2020-05-27T15:05:05Z&sync_all";
 
             //Act
             // running method and checking results

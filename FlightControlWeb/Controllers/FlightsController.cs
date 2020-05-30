@@ -166,10 +166,6 @@ namespace FlightControlWeb.Controllers
             dynamic result;
             using (var client = _clientFactory.CreateClient())
             {
-                //client.BaseAddress = new Uri(_baseAddress);
-                //client.DefaultRequestHeaders.Accept.Clear();
-                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
                 result = await client.GetStringAsync(_apiUrl);
             }
 
