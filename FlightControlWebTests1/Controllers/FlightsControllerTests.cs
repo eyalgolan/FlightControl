@@ -23,94 +23,116 @@ namespace FlightControlWeb.Controllers.Tests
     public class FlightsControllerTests
     {
         [TestMethod()]
-        public void GetFlightsTest()
+        public async Task GetFlightsInternalTest()
         {
 
-            // Creating elements to add to the DB
+            // context
+            var options = new DbContextOptionsBuilder<FlightContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var context = new FlightContext(options);
 
-            var testFlight = new List<Flight>
+            // Creating elements to add to the DB
+            var testFlight = new Flight()
             {
-                new Flight()
-                {
-                    Id = 1,
-                    FlightId = "IL30357629",
-                    IsExternal = false
-                }
-            }.AsQueryable();
+                Id = 1,
+                FlightId = "IL30357629",
+                IsExternal = false
+            };
 
             DateTime startTime = DateTime.Parse("2020-05-27T15:05:00Z");
             DateTime endTime = DateTime.Parse("2020-05-27T16:05:00Z");
-            var testFlightPlan = new List<FlightPlan>
+            var testFlightPlan = new FlightPlan()
             {
-                new FlightPlan()
-                {
-                    Id = 1,
-                    FlightId = "IL30357629",
-                    Passengers = 247,
-                    CompanyName = "United Airlines",
-                    IsExternal = false,
-                    EndTime = endTime
-                }
-            }.AsQueryable();
+                Id = 1,
+                FlightId = "IL30357629",
+                Passengers = 247,
+                CompanyName = "United Airlines",
+                IsExternal = false,
+                EndTime = endTime
+            };
 
-            var testInitialLocation = new List<InitialLocation>
+            var testInitialLocation = new InitialLocation()
             {
-                new InitialLocation()
-                {
-                    Id = 1,
-                    FlightPlanId = 1,
-                    Longitude = 33.24,
-                    Latitude = 19.53,
-                    DateTime = startTime
-                }
-            }.AsQueryable();
+                Id = 1,
+                FlightPlanId = 1,
+                Longitude = 33.24,
+                Latitude = 19.53,
+                DateTime = startTime
+            };
 
-            var testSegment = new List<Segment>
+            var testSegmentFirst = new Segment()
             {
-                new Segment()
-                {
-                    Id = 1,
-                    FlightPlanId = 1,
-                    Longitude = 23.240702,
-                    Latitude = 34.921971,
-                    TimeSpanSeconds = 1800,
-                    StartTime = startTime,
-                    EndTime = startTime.AddSeconds(1800)
-                },
+                Id = 1,
+                FlightPlanId = 1,
+                Longitude = 23.240702,
+                Latitude = 34.921971,
+                TimeSpanSeconds = 1800,
+                StartTime = startTime,
+                EndTime = startTime.AddSeconds(1800)
+            };
 
-                new Segment()
-                {
-                    Id = 2,
-                    FlightPlanId = 1,
-                    Longitude = 21.346370,
-                    Latitude = 39.419221,
-                    TimeSpanSeconds = 1800,
-                    StartTime = startTime.AddSeconds(1800),
-                    EndTime = endTime
-                }
-            }.AsQueryable();
+            var testSegmentSecond = new Segment()
+            {
+                Id = 2,
+                FlightPlanId = 1,
+                Longitude = 21.346370,
+                Latitude = 39.419221,
+                TimeSpanSeconds = 1800,
+                StartTime = startTime.AddSeconds(1800),
+                EndTime = endTime
+            };
+
+            await context.FlightItems.AddAsync(testFlight);
+            await context.FlightPlanItems.AddAsync(testFlightPlan);
+            await context.InitialLocationItems.AddAsync(testInitialLocation);
+            await context.SegmentItems.AddAsync(testSegmentFirst);
+            await context.SegmentItems.AddAsync(testSegmentSecond);
+
+            var mockClientFactory = new Mock<IHttpClientFactory>();
+
+            // controller
+            var controller = new FlightsController(context, mockClientFactory.Object); // todo ISSUE HERE
+
+            var relativeTo = "2020-05-27T15:40:05Z";
+            var expectedLatitude = 34.921971 + ((double)305 / 1800) * (39.419221 - 34.921971);
+            var expectedLongitude = 23.240702 + ((double)305 / 1800) * (21.346370 - 23.240702);
+            var expectedResult = "{" +
+                                 "'flight_id': 'IL30357629'" +
+                                 "'longitude':" + expectedLongitude +
+                                 "'latitude':" + expectedLatitude +
+                                 "'passengers': 247" +
+                                 "'company_name': 'United Airlines'" +
+                                 "'date_time': '2020-05-27T15:00:00Z'" +
+                                 "'is_external': false";
+            //Act
+            // running method and checking results
+            IEnumerable<FlightData> result = await controller.GetFlights(relativeTo);
+            Assert.IsNotNull(result.FirstOrDefault());
+            var resultFlightId = result.FirstOrDefault().FlightID;
+            var resultLongitude = result.FirstOrDefault().Longitude;
+            var resultLatitude = result.FirstOrDefault().Latitude;
+            var resultPassengers = result.FirstOrDefault().Passengers;
+            var resultCompanyName = result.FirstOrDefault().CompanyName;
+            var resultDateTime = result.FirstOrDefault().CurrDateTime;
+            var resultIsExternal = result.FirstOrDefault().IsExternal;
             
-            // Creating Mock sets for DB
-            var mockFlightSet = new Mock<DbSet<Flight>>();
-            var mockFlightPlanSet = new Mock<DbSet<FlightPlan>>();
-            var mockInitialLocationSet = new Mock<DbSet<InitialLocation>>();
-            var mockSegmentSet = new Mock<DbSet<Segment>>();
-            var mockExternalFlightSet = new Mock<DbSet<Flight>>();
-            var mockContext = new Mock<FlightContext>();
+            //todo need to change this to check if equal to input+what we added to db - maybe only check number of elements?
+            Assert.AreEqual("IL30357629", resultFlightId);
+            Assert.AreEqual(expectedLongitude.ToString(), resultLongitude);
+            Assert.AreEqual(expectedLatitude.ToString(), resultLatitude);
+            Assert.AreEqual(247, resultPassengers);
+            Assert.AreEqual("United Airlines", resultCompanyName);
+            Assert.AreEqual("2020-05-27T15:00:00Z", resultDateTime);
+            Assert.AreEqual(false, resultIsExternal);
+            //Assert.AreEqual(HttpStatusCode.OK, (HttpStatusCode) result.StatusCode);
 
-            // Linking mocked sets to elements created earlier
-            mockFlightSet.As<IQueryable<Flight>>().Setup(m => m.Provider).Returns(testFlight.Provider);
-            mockFlightPlanSet.As<IQueryable<FlightPlan>>().Setup(m => m.Provider).Returns(testFlightPlan.Provider);
-            mockInitialLocationSet.As<IQueryable<InitialLocation>>().Setup(m => m.Provider).Returns(testInitialLocation.Provider);
-            mockSegmentSet.As<IQueryable<Segment>>().Setup(m => m.Provider).Returns(testSegment.Provider);
+        }
 
-            // Adding sets to context
-            mockContext.As<IDataContext>().Setup(m => m.FlightItems).Returns(mockFlightSet.Object);
-            mockContext.As<IDataContext>().Setup(m => m.FlightPlanItems).Returns(mockFlightPlanSet.Object);
-            mockContext.As<IDataContext>().Setup(m => m.InitialLocationItems).Returns(mockInitialLocationSet.Object);
-            mockContext.As<IDataContext>().Setup(m => m.SegmentItems).Returns(mockSegmentSet.Object);
-            mockContext.As<IDataContext>().Setup(m => m.ExternalFlightItems).Returns(mockExternalFlightSet.Object);
-            
+        [TestMethod()]
+        public async Task GetFlightsExternalTest()
+        {
+
             // creating mocked http client factory
             var mockClientFactory = new Mock<IHttpClientFactory>();
 
@@ -138,7 +160,8 @@ namespace FlightControlWeb.Controllers.Tests
                         "}" +
                         "}";
             mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
@@ -147,22 +170,24 @@ namespace FlightControlWeb.Controllers.Tests
             var client = new HttpClient(mockHttpMessageHandler.Object);
             mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
 
+            // context
+            var options = new DbContextOptionsBuilder<FlightContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var context = new FlightContext(options);
+
             // controller
-            var controller = new FlightsController(mockContext.Object, mockClientFactory.Object); // todo ISSUE HERE
-            
+            var controller = new FlightsController(context, mockClientFactory.Object); // todo ISSUE HERE
+
             var relativeTo = "2020-05-27T15:05:05Z";
 
             //Act
-            Task.Run(async () =>
-            {
-                // running method and checking results
-                var result = await controller.GetFlights(relativeTo) as ObjectResult;
-                Assert.IsNotNull(result);
-                //todo need to change thie to check if equal to input+what we added to db - maybe only check number of elements?
-                Assert.AreEqual(result.Value, input);
-                Assert.AreEqual(HttpStatusCode.OK, (HttpStatusCode)result.StatusCode);
-            }).GetAwaiter().GetResult();
-
+            // running method and checking results
+            var result = await controller.GetFlights(relativeTo);
+            Assert.IsNotNull(result);
+            //todo need to change this to check if equal to input+what we added to db - maybe only check number of elements?
+            //Assert.AreEqual(result, input);
+            //Assert.AreEqual(HttpStatusCode.OK, (HttpStatusCode)result.StatusCode);
         }
     }
 }
