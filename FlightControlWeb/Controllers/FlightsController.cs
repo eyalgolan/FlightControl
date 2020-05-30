@@ -44,17 +44,17 @@ namespace FlightControlWeb.Controllers
         */
         private async Task<IEnumerable<FlightPlan>> FindPlanStartingBefore(DateTime relative_to)
         {
-            IEnumerable<InitialLocation> relaventInitials =
+            IEnumerable<InitialLocation> relevantInitials =
                 await _flightContext.InitialLocationItems.Where(x => x.DateTime <= relative_to).ToListAsync();
-            var relaventPlans = Enumerable.Empty<FlightPlan>();
-            foreach (var initial in relaventInitials)
+            var relevantPlans = Enumerable.Empty<FlightPlan>();
+            foreach (var initial in relevantInitials)
             {
                 var initialFlightPlanId = initial.FlightPlanId;
                 var relevantPlan = await _flightContext.FlightPlanItems.FindAsync(initialFlightPlanId);
-                if (relevantPlan != null) relaventPlans = relaventPlans.Append(relevantPlan);
+                if (relevantPlan != null) relevantPlans = relevantPlans.Append(relevantPlan);
             }
 
-            return relaventPlans;
+            return relevantPlans;
         }
 
         /* 
@@ -257,16 +257,17 @@ namespace FlightControlWeb.Controllers
             
             var relevantPlans = await FindPlanStartingBefore(relativeTo);
 
-            IEnumerable<FlightData> internalFlights = new List<FlightData>();
+            var internalFlights = await FindRelevantInternalFlights(relevantPlans, relativeTo);
             IEnumerable<FlightData> externalFlights = new List<FlightData>();
 
-            internalFlights = await FindRelevantInternalFlights(relevantPlans, relativeTo);
+            if (Request != null)
+            {
+                var requestValue = Request.QueryString.Value;
+                if (requestValue.Contains("sync_all"))
+                    externalFlights = await AddExternalFlights(externalFlights, relative_to);
 
-            var requestValue = Request.QueryString.Value;
-            if (requestValue.Contains("sync_all"))
-                externalFlights = await AddExternalFlights(externalFlights, relative_to);
-
-            internalFlights = internalFlights.Concat(externalFlights);
+                internalFlights = internalFlights.Concat(externalFlights);
+            }
 
             return internalFlights;
         }

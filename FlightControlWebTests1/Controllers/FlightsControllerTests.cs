@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FlightControlWeb.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.Language.Intermediate;
 using Microsoft.EntityFrameworkCore;
@@ -87,14 +88,16 @@ namespace FlightControlWeb.Controllers.Tests
             await context.FlightPlanItems.AddAsync(testFlightPlan);
             await context.InitialLocationItems.AddAsync(testInitialLocation);
             await context.SegmentItems.AddAsync(testSegmentFirst);
-            await context.SegmentItems.AddAsync(testSegmentSecond);
+            await context.SegmentItems.AddAsync(testSegmentSecond); 
+            await context.SaveChangesAsync();
 
             var mockClientFactory = new Mock<IHttpClientFactory>();
 
             // controller
             var controller = new FlightsController(context, mockClientFactory.Object); // todo ISSUE HERE
 
-            var relativeTo = "2020-05-27T15:40:05Z";
+            var relativeTo = "2020-05-27T15:05:00Z";
+
             var expectedLatitude = 34.921971 + ((double)305 / 1800) * (39.419221 - 34.921971);
             var expectedLongitude = 23.240702 + ((double)305 / 1800) * (21.346370 - 23.240702);
             var expectedResult = "{" +
@@ -105,9 +108,11 @@ namespace FlightControlWeb.Controllers.Tests
                                  "'company_name': 'United Airlines'" +
                                  "'date_time': '2020-05-27T15:00:00Z'" +
                                  "'is_external': false";
+
             //Act
             // running method and checking results
             IEnumerable<FlightData> result = await controller.GetFlights(relativeTo);
+
             Assert.IsNotNull(result.FirstOrDefault());
             var resultFlightId = result.FirstOrDefault().FlightID;
             var resultLongitude = result.FirstOrDefault().Longitude;
