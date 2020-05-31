@@ -64,7 +64,7 @@ namespace FlightControlWeb.Controllers
                 }
                 else
                 {
-                    var secondsInSegment = k.Value.TimeSpanSeconds - (int) secondsInFlight;
+                    var secondsInSegment = k.Value.TimeSpanSeconds - (int)secondsInFlight;
                     double lastLatitude;
                     double lastLongitude;
                     if (k.Key == 0)
@@ -79,7 +79,7 @@ namespace FlightControlWeb.Controllers
                         lastLatitude = previousSegment.Latitude;
                     }
 
-                    var delta = 1 - secondsInSegment / (double) k.Value.TimeSpanSeconds;
+                    var delta = 1 - secondsInSegment / (double)k.Value.TimeSpanSeconds;
                     relevantFlightData.Latitude =
                         lastLatitude + delta * (k.Value.Latitude - lastLatitude);
                     relevantFlightData.Longitude =
@@ -242,7 +242,7 @@ namespace FlightControlWeb.Controllers
         {
             DateTime relativeTo = DateTime.Parse(relative_to);
             relativeTo = relativeTo.ToUniversalTime();
-            
+
             var relevantPlans = await FindPlanStartingBefore(relativeTo);
 
             var internalFlights = await FindRelevantInternalFlights(relevantPlans, relativeTo);
