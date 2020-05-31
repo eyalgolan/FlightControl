@@ -226,7 +226,7 @@ namespace FlightControlWeb.Controllers
 
                 foreach (var item in jsonResult)
                 {
-                    ProcessItem(item, relevantFlights, server);
+                    await ProcessItem(item, relevantFlights, server);
                 }
             }
 
