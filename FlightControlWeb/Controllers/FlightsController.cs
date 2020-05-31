@@ -1,7 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -14,8 +20,8 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class FlightsController : ControllerBase
     {
-        private readonly IHttpClientFactory _clientFactory;
         private readonly IDataContext _flightContext;
+        private readonly IHttpClientFactory _clientFactory;
 
         public FlightsController(FlightContext flightContext, IHttpClientFactory clientFactory)
         {
@@ -87,7 +93,7 @@ namespace FlightControlWeb.Controllers
             relevantFlightData.CurrDateTime = relative_to;
         }
 
-        /* 
+        /* todo
         * This method updates the data of a flight (especially location) and add it to
         * the relevant flights list.
         */
@@ -159,7 +165,7 @@ namespace FlightControlWeb.Controllers
 
         private FlightData CreateFlightDataFromJson(dynamic item)
         {
-            var newFlightData = new FlightData
+            FlightData newFlightData = new FlightData()
             {
                 FlightID = item["flight_id"],
                 Latitude = item["latitude"],
@@ -171,29 +177,7 @@ namespace FlightControlWeb.Controllers
             };
             return newFlightData;
         }
-
-        private async void ProcessItem(dynamic item, IEnumerable<FlightData> relevantFlights, Server server)
-        {
-            FlightData newFlightData = CreateFlightDataFromJson(item);
-            relevantFlights = relevantFlights.Append(newFlightData);
-
-            string flightId = item["flight_id"];
-            var flightInDb = await _flightContext.ExternalFlightItems.AnyAsync(x => x.FlightId == flightId);
-            if (!flightInDb)
-            {
-                var newFlight = new Flight
-                {
-                    FlightId = item["flight_id"],
-                    OriginServer = server.ServerUrl,
-                    IsExternal = true
-                };
-                await _flightContext.ExternalFlightItems.AddAsync(newFlight);
-                await _flightContext.SaveChangesAsync();
-            }
-        }
-
-        private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> relevantFlights,
-            string relative_to)
+        private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> relevantFlights, string relative_to)
         {
             var servers = await _flightContext.ServerItems.ToListAsync();
             foreach (var server in servers)
@@ -226,10 +210,24 @@ namespace FlightControlWeb.Controllers
 
                 foreach (var item in jsonResult)
                 {
-                    await ProcessItem(item, relevantFlights, server);
+                    FlightData newFlightData = CreateFlightDataFromJson(item);
+                    relevantFlights = relevantFlights.Append(newFlightData);
+
+                    string flightId = item["flight_id"];
+                    bool flightInDb = await _flightContext.ExternalFlightItems.AnyAsync(x => x.FlightId == flightId);
+                    if (!flightInDb)
+                    {
+                        Flight newFlight = new Flight()
+                        {
+                            FlightId = item["flight_id"],
+                            OriginServer = server.ServerUrl,
+                            IsExternal = true
+                        };
+                        await _flightContext.ExternalFlightItems.AddAsync(newFlight);
+                        await _flightContext.SaveChangesAsync();
+                    }
                 }
             }
-
             return relevantFlights;
         }
 
@@ -242,9 +240,9 @@ namespace FlightControlWeb.Controllers
         [HttpGet]
         public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] string relative_to)
         {
-            var relativeTo = DateTime.Parse(relative_to);
+            DateTime relativeTo = DateTime.Parse(relative_to);
             relativeTo = relativeTo.ToUniversalTime();
-
+            
             var relevantPlans = await FindPlanStartingBefore(relativeTo);
 
             var internalFlights = await FindRelevantInternalFlights(relevantPlans, relativeTo);
