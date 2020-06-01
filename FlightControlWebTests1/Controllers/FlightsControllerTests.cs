@@ -1,32 +1,25 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FlightControlWeb.Controllers;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FlightControlWeb.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.Language.Intermediate;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Protected;
 
 namespace FlightControlWeb.Controllers.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class FlightsControllerTests
     {
-        [TestMethod()]
+        [TestMethod]
         public async Task GetFlightsInternalTest()
         {
-
             // context
             var options = new DbContextOptionsBuilder<FlightContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -34,16 +27,16 @@ namespace FlightControlWeb.Controllers.Tests
             var context = new FlightContext(options);
 
             // Creating elements to add to the DB
-            var testFlight = new Flight()
+            var testFlight = new Flight
             {
                 Id = 1,
                 FlightId = "IL30357629",
                 IsExternal = false
             };
 
-            DateTime startTime = DateTime.Parse("2020-05-27T12:05:00Z");
-            DateTime endTime = DateTime.Parse("2020-05-27T13:05:00Z");
-            var testFlightPlan = new FlightPlan()
+            var startTime = DateTime.Parse("2020-05-27T12:05:00Z");
+            var endTime = DateTime.Parse("2020-05-27T13:05:00Z");
+            var testFlightPlan = new FlightPlan
             {
                 Id = 1,
                 FlightId = "IL30357629",
@@ -53,7 +46,7 @@ namespace FlightControlWeb.Controllers.Tests
                 EndTime = endTime
             };
 
-            var testInitialLocation = new InitialLocation()
+            var testInitialLocation = new InitialLocation
             {
                 Id = 1,
                 FlightPlanId = 1,
@@ -62,7 +55,7 @@ namespace FlightControlWeb.Controllers.Tests
                 DateTime = startTime
             };
 
-            var testSegmentFirst = new Segment()
+            var testSegmentFirst = new Segment
             {
                 Id = 1,
                 FlightPlanId = 1,
@@ -73,7 +66,7 @@ namespace FlightControlWeb.Controllers.Tests
                 EndTime = startTime.AddSeconds(1800)
             };
 
-            var testSegmentSecond = new Segment()
+            var testSegmentSecond = new Segment
             {
                 Id = 2,
                 FlightPlanId = 1,
@@ -98,24 +91,14 @@ namespace FlightControlWeb.Controllers.Tests
 
             var relativeTo = "2020-05-27T15:35:05Z";
 
-            //var expectedLatitude = 34.93446336111111; //todo check this is really correct
-            //var expectedLongitude = 23.235439966666664; //todo check this is really correct
-            double secondsInSegment = 5.0;
-            var delta = secondsInSegment / (double) testSegmentSecond.TimeSpanSeconds;
-            var expectedLatitude = testSegmentFirst.Latitude + delta * 
-                (testSegmentSecond.Latitude - testSegmentFirst.Latitude);
-            var expectedLongitude = testSegmentFirst.Longitude + delta * 
-                (testSegmentSecond.Longitude - testSegmentFirst.Longitude);
-            var expectedResult = "{" +
-                                 "'flight_id': 'IL30357629'" +
-                                 "'longitude':" + expectedLongitude +
-                                 "'latitude':" + expectedLatitude +
-                                 "'passengers': 247" +
-                                 "'company_name': 'United Airlines'" +
-                                 "'date_time': '2020-05-27T15:05:00Z'" +
-                                 "'is_external': false";
 
-            DateTime relativeToDate = DateTime.Parse(relativeTo);
+            var secondsInSegment = 5.0;
+            var delta = secondsInSegment / testSegmentSecond.TimeSpanSeconds;
+            var expectedLatitude = testSegmentFirst.Latitude + delta *
+                (testSegmentSecond.Latitude - testSegmentFirst.Latitude);
+            var expectedLongitude = testSegmentFirst.Longitude + delta *
+                (testSegmentSecond.Longitude - testSegmentFirst.Longitude);
+
 
             //Act
             // running method and checking results
@@ -127,8 +110,9 @@ namespace FlightControlWeb.Controllers.Tests
             var resultLatitude = result.Latitude;
             var resultPassengers = result.Passengers;
             var resultCompanyName = result.CompanyName;
-            string pattern = "dd/MMM/yy h:mm:ss tt";
-            var resultDateTime = result.CurrDateTime.ToString(pattern);
+            var pattern = "dd/MMM/yy h:mm:ss tt";
+            CultureInfo culture = new CultureInfo("en-US");
+            var resultDateTime = result.CurrDateTime.ToString(pattern, culture);
             var resultIsExternal = result.IsExternal;
 
             //todo need to change this to check if equal to input+what we added to db - maybe only check number of elements?
@@ -139,13 +123,11 @@ namespace FlightControlWeb.Controllers.Tests
             Assert.AreEqual("United Airlines", resultCompanyName);
             Assert.AreEqual("27-May-20 3:35:05 PM", resultDateTime);
             Assert.AreEqual(false, resultIsExternal);
-
         }
 
-        [TestMethod()]
+        [TestMethod]
         public async Task GetFlightsExternalTest()
         {
-
             // creating mocked http client factory
             var mockClientFactory = new Mock<IHttpClientFactory>();
 
@@ -178,7 +160,7 @@ namespace FlightControlWeb.Controllers.Tests
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(input),
+                    Content = new StringContent(input)
                 });
             var client = new HttpClient(mockHttpMessageHandler.Object);
             mockClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
