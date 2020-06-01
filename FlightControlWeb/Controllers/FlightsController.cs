@@ -264,8 +264,9 @@ namespace FlightControlWeb.Controllers
         */
         // GET: api/Flights
         [HttpGet]
-        public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] string relativeTo)
+        public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] string relative_to)
         {
+            var relativeTo = relative_to;
             var relativeToDate = DateTime.Parse(relativeTo);
             relativeToDate = relativeToDate.ToUniversalTime();
 
