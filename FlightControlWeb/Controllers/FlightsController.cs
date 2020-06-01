@@ -16,6 +16,11 @@ using Newtonsoft.Json;
 
 namespace FlightControlWeb.Controllers
 {
+    /*
+     * This class is the controller of the flights. it filters the flights
+     * we don't want to show in our bar (at the html view) and calculates
+     * the location of every flight in any given time
+     */
     [Route("api/Flights")]
     [ApiController]
     public class FlightsController : ControllerBase
@@ -152,6 +157,10 @@ namespace FlightControlWeb.Controllers
             return relevantFlights;
         }
 
+        /*
+         * This method run over all the external available flights, from all of the
+         * external servers and return them
+         */
         private async Task<dynamic> GetExternalFlight(string _apiUrl, string _baseAddress)
         {
             dynamic result;
@@ -163,6 +172,9 @@ namespace FlightControlWeb.Controllers
             return result;
         }
 
+        /*
+         * This method creates new flights out of given json file
+         */
         private static FlightData CreateFlightDataFromJson(dynamic item)
         {
             var newFlightData = new FlightData()

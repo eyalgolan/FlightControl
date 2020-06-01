@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace FlightControlWeb.Models
 {
+    /*
+     * this class represent an object that we return in a response to
+     * a GET command. it contains the data the user gets.
+     */
     public class FlightData
     {
         [JsonPropertyName("flight_id")]

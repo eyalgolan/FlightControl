@@ -7,6 +7,10 @@ using FlightControlWeb.Models;
 
 namespace FlightControlWeb.Controllers
 {
+    /*
+     * This class is the controller of the servers. it connects between our
+     * program to external servers that contain flights
+     */
     [Route("api/[controller]")]
     [ApiController]
     public class ServersController : ControllerBase
