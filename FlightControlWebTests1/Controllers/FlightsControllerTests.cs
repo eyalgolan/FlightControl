@@ -127,7 +127,8 @@ namespace FlightControlWeb.Controllers.Tests
             var resultLatitude = result.Latitude;
             var resultPassengers = result.Passengers;
             var resultCompanyName = result.CompanyName;
-            var resultDateTime = result.CurrDateTime;
+            string pattern = "dd/MMM/yy h:mm:ss tt";
+            var resultDateTime = result.CurrDateTime.ToString(pattern);
             var resultIsExternal = result.IsExternal;
 
             //todo need to change this to check if equal to input+what we added to db - maybe only check number of elements?
@@ -136,7 +137,7 @@ namespace FlightControlWeb.Controllers.Tests
             Assert.AreEqual(expectedLatitude, resultLatitude);
             Assert.AreEqual(247, resultPassengers);
             Assert.AreEqual("United Airlines", resultCompanyName);
-            //Assert.AreEqual("27-May-20 3:35:05 PM", resultDateTime.ToString());
+            Assert.AreEqual("27-May-20 3:35:05 PM", resultDateTime);
             Assert.AreEqual(false, resultIsExternal);
 
         }
