@@ -26,6 +26,10 @@ namespace FlightControlWeb.Controllers.Tests
                 .Options;
             var context = new FlightContext(options);
 
+            // determining the flight times
+            var startTime = DateTime.Parse("2020-05-27T12:05:00Z");
+            var endTime = DateTime.Parse("2020-05-27T13:05:00Z");
+
             // Creating elements to add to the DB
             var testFlight = new Flight
             {
@@ -34,8 +38,6 @@ namespace FlightControlWeb.Controllers.Tests
                 IsExternal = false
             };
 
-            var startTime = DateTime.Parse("2020-05-27T12:05:00Z");
-            var endTime = DateTime.Parse("2020-05-27T13:05:00Z");
             var testFlightPlan = new FlightPlan
             {
                 Id = 1,
@@ -77,6 +79,7 @@ namespace FlightControlWeb.Controllers.Tests
                 EndTime = endTime
             };
 
+            // adding the elements to the db
             await context.FlightItems.AddAsync(testFlight);
             await context.FlightPlanItems.AddAsync(testFlightPlan);
             await context.InitialLocationItems.AddAsync(testInitialLocation);
@@ -84,14 +87,14 @@ namespace FlightControlWeb.Controllers.Tests
             await context.SegmentItems.AddAsync(testSegmentSecond);
             await context.SaveChangesAsync();
 
-            var mockClientFactory = new Mock<IHttpClientFactory>();
+            var mockClientFactory = new Mock<IHttpClientFactory>(); //mock httpclientfactory
 
             // controller
             var controller = new FlightsController(context, mockClientFactory.Object);
 
             var relativeTo = "2020-05-27T15:35:05Z";
 
-
+            // calculating the location
             var secondsInSegment = 5.0;
             var delta = secondsInSegment / testSegmentSecond.TimeSpanSeconds;
             var expectedLatitude = testSegmentFirst.Latitude + delta *
@@ -115,7 +118,7 @@ namespace FlightControlWeb.Controllers.Tests
             var resultDateTime = result.CurrDateTime.ToString(pattern, culture);
             var resultIsExternal = result.IsExternal;
 
-            //todo need to change this to check if equal to input+what we added to db - maybe only check number of elements?
+            // checking GetFlights returned the right results
             Assert.AreEqual("IL30357629", resultFlightId);
             Assert.AreEqual(expectedLongitude, resultLongitude);
             Assert.AreEqual(expectedLatitude, resultLatitude);
