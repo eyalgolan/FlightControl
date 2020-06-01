@@ -163,9 +163,9 @@ namespace FlightControlWeb.Controllers
             return result;
         }
 
-        private FlightData CreateFlightDataFromJson(dynamic item)
+        private static FlightData CreateFlightDataFromJson(dynamic item)
         {
-            FlightData newFlightData = new FlightData()
+            var newFlightData = new FlightData()
             {
                 FlightID = item["flight_id"],
                 Latitude = item["latitude"],
@@ -177,12 +177,65 @@ namespace FlightControlWeb.Controllers
             };
             return newFlightData;
         }
-        private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> relevantFlights, string relative_to)
+
+        /*
+         * Given a json object, deserializes it and returns the result
+         */
+        private static dynamic DeserializeJson(dynamic result)
+        {
+            dynamic jsonResult;
+            try
+            {
+                jsonResult = JsonConvert.DeserializeObject(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return null;
+            }
+
+            return jsonResult;
+        }
+
+        /*
+         * Given a Json object containing a list of flights, the method parses it, adds the flights to a the db and to a list and returns the list
+         */
+        private async Task<IEnumerable<FlightData>> AddJsonItemsToList(IEnumerable<FlightData> relevantFlights,dynamic jsonResult, Server server)
+        {
+            foreach (var item in jsonResult)
+            {
+                FlightData newFlightData = CreateFlightDataFromJson(item);
+                relevantFlights = relevantFlights.Append(newFlightData);
+
+                string flightId = item["flight_id"];
+                var flightInDb = await _flightContext.ExternalFlightItems.AnyAsync(x => x.FlightId == flightId);
+                if (!flightInDb)
+                {
+                    var newFlight = new Flight()
+                    {
+                        FlightId = item["flight_id"],
+                        OriginServer = server.ServerUrl,
+                        IsExternal = true
+                    };
+                    await _flightContext.ExternalFlightItems.AddAsync(newFlight);
+                    await _flightContext.SaveChangesAsync();
+                }
+            }
+            
+
+            return relevantFlights;
+        }
+
+        /*
+         * Given a string representing a time, gets all the flights from the external servers - relevant to that time.
+         * Updates the DB and populates the given list accordingly, returns the list
+         */
+        private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> relevantFlights, string relativeTo)
         {
             var servers = await _flightContext.ServerItems.ToListAsync();
             foreach (var server in servers)
             {
-                var apiUrl = server.ServerUrl + "/api/Flights?relative_to=" + relative_to;
+                var apiUrl = server.ServerUrl + "/api/Flights?relativeTo=" + relativeTo;
                 var baseAddress = server.ServerUrl;
 
                 dynamic result = null;
@@ -197,36 +250,9 @@ namespace FlightControlWeb.Controllers
 
                 if (result == null) return relevantFlights;
 
-                dynamic jsonResult;
-                try
-                {
-                    jsonResult = JsonConvert.DeserializeObject(result);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                    return relevantFlights;
-                }
+                var jsonResult = DeserializeJson(result);
 
-                foreach (var item in jsonResult)
-                {
-                    FlightData newFlightData = CreateFlightDataFromJson(item);
-                    relevantFlights = relevantFlights.Append(newFlightData);
-
-                    string flightId = item["flight_id"];
-                    bool flightInDb = await _flightContext.ExternalFlightItems.AnyAsync(x => x.FlightId == flightId);
-                    if (!flightInDb)
-                    {
-                        Flight newFlight = new Flight()
-                        {
-                            FlightId = item["flight_id"],
-                            OriginServer = server.ServerUrl,
-                            IsExternal = true
-                        };
-                        await _flightContext.ExternalFlightItems.AddAsync(newFlight);
-                        await _flightContext.SaveChangesAsync();
-                    }
-                }
+                relevantFlights = await AddJsonItemsToList(relevantFlights, jsonResult, server);
             }
             return relevantFlights;
         }
@@ -238,21 +264,21 @@ namespace FlightControlWeb.Controllers
         */
         // GET: api/Flights
         [HttpGet]
-        public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] string relative_to)
+        public async Task<IEnumerable<FlightData>> GetFlights([FromQuery] string relativeTo)
         {
-            DateTime relativeTo = DateTime.Parse(relative_to);
-            relativeTo = relativeTo.ToUniversalTime();
+            var relativeToDate = DateTime.Parse(relativeTo);
+            relativeToDate = relativeToDate.ToUniversalTime();
 
-            var relevantPlans = await FindPlanStartingBefore(relativeTo);
+            var relevantPlans = await FindPlanStartingBefore(relativeToDate);
 
-            var internalFlights = await FindRelevantInternalFlights(relevantPlans, relativeTo);
+            var internalFlights = await FindRelevantInternalFlights(relevantPlans, relativeToDate);
             IEnumerable<FlightData> externalFlights = new List<FlightData>();
 
             if (Request != null)
             {
                 var requestValue = Request.QueryString.Value;
                 if (requestValue.Contains("sync_all"))
-                    externalFlights = await AddExternalFlights(externalFlights, relative_to);
+                    externalFlights = await AddExternalFlights(externalFlights, relativeTo);
 
                 internalFlights = internalFlights.Concat(externalFlights);
             }
