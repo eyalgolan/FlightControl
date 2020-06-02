@@ -254,7 +254,7 @@ namespace FlightControlWeb.Controllers
             var servers = await _flightContext.ServerItems.ToListAsync();
             foreach (var server in servers)
             {
-                var apiUrl = server.ServerUrl + "/api/Flights?relativeTo=" + relativeTo;
+                var apiUrl = server.ServerUrl + "/api/Flights?relative_to=" + relativeTo;
                 var baseAddress = server.ServerUrl;
 
                 dynamic result = null;
