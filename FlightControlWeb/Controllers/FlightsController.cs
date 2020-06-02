@@ -167,7 +167,7 @@ namespace FlightControlWeb.Controllers
         private async Task<dynamic> GetExternalFlight(string apiUrl)
         {
             dynamic result;
-            using (var client = _clientFactory.CreateClient())
+            using var client = _clientFactory.CreateClient();
             {
                 result = await client.GetStringAsync(apiUrl);
             }

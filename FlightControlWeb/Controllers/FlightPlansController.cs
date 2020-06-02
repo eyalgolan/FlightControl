@@ -69,7 +69,7 @@ namespace FlightControlWeb.Controllers
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
             var _baseAddress = flight.OriginServer;
-            using (var client = _clientFactory.CreateClient())
+            using var client = _clientFactory.CreateClient();
             {
                 client.BaseAddress = new Uri(_baseAddress);
                 client.DefaultRequestHeaders.Accept.Clear();
