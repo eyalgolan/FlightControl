@@ -85,7 +85,7 @@ namespace FlightControlWeb.Controllers.Tests
         /*
          * Add test objects to the DB context
          */
-        private static async Task AddElementsToDb (FlightContext context, Flight testFlight, FlightPlan testFlightPlan, InitialLocation testInitialLocation, Segment testSegmentFirst, Segment testSegmentSecond)
+        private static async Task AddElementsToDb(FlightContext context, Flight testFlight, FlightPlan testFlightPlan, InitialLocation testInitialLocation, Segment testSegmentFirst, Segment testSegmentSecond)
         {
             await context.FlightItems.AddAsync(testFlight);
             await context.FlightPlanItems.AddAsync(testFlightPlan);
@@ -163,7 +163,8 @@ namespace FlightControlWeb.Controllers.Tests
             // context
             var context = await CreateTestContext(startTime, endTime);
 
-            var mockClientFactory = new Mock<IHttpClientFactory>(); // mock http client factory
+            // mock http client factory
+            var mockClientFactory = new Mock<IHttpClientFactory>();
 
             // controller
             var controller = new FlightsController(context, mockClientFactory.Object);
@@ -179,7 +180,7 @@ namespace FlightControlWeb.Controllers.Tests
                 (testSegmentSecond.Longitude - testSegmentFirst.Longitude);
 
             // Act - running method and checking results
-           await GetResultsAndCheck(controller, relativeTo, expectedLongitude, expectedLatitude);
+            await GetResultsAndCheck(controller, relativeTo, expectedLongitude, expectedLatitude);
         }
     }
 }
