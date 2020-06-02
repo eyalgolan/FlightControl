@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace FlightControlWeb.Models
 {
@@ -21,6 +22,7 @@ namespace FlightControlWeb.Models
         // this member represent the initial location's latitude
         [Required] public double Latitude { get; set; }
         // this member represent the initial location's starting time
+        [JsonPropertyName("date_time")]
         [Required] public DateTime DateTime { get; set; }
 
     }

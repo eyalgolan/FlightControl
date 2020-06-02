@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -12,7 +13,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 /*
  * This class is the controller of for the flight plans we get from internal
@@ -65,31 +68,69 @@ namespace FlightControlWeb.Controllers
             return flightPlanData;
         }
 
+        private FlightPlanData CreateFlightPlanDataFromJson(dynamic obj)
+        {
+            double longitude = double.Parse(obj["initial_location"]["longitude"].ToString());
+            double latitude = double.Parse(obj["initial_location"]["latitude"].ToString());
+            DateTime dateTime = obj["initial_location"]["date_time"];
+
+            dynamic segments = obj["segments"];
+
+            FlightPlanData newFlightPlanData = new FlightPlanData()
+            {
+
+                Passengers = int.Parse(obj["passengers"].ToString()),
+                CompanyName = obj["company_name"].ToString(),
+                InitialLocation = new InitialLocation()
+                {
+                    Longitude = longitude,
+                    Latitude = latitude,
+                    DateTime = dateTime
+                }
+            };
+
+            IEnumerable<Segment> segmentList = new List<Segment>();
+            foreach (var segment in segments)
+            {
+                double segmentLongitude = double.Parse(segment["longitude"].ToString());
+                double segmentLatitude = double.Parse(segment["latitude"].ToString());
+                int timeSpanSeconds = int.Parse(segment["timespan_seconds"].ToString());
+
+                Segment newSegment = new Segment()
+                {
+                    Longitude = segmentLongitude,
+                    Latitude = segmentLatitude,
+                    TimeSpanSeconds = timeSpanSeconds
+                };
+                segmentList = segmentList.Append(newSegment);
+            }
+
+            newFlightPlanData.Segments = segmentList;
+
+            return newFlightPlanData;
+        }
+
         /*
          * Getting flights from external servers using a http client
          */
-        private async Task<ActionResult<dynamic>> GetExternalFlightPlan(string id, Flight flight)
+        private async Task<ActionResult<FlightPlanData>> GetExternalFlightPlan(string id, Flight flight)
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
             var _baseAddress = flight.OriginServer;
             using (var client = _clientFactory.CreateClient())
             {
-                client.BaseAddress = new Uri(_baseAddress);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add
-                    (new MediaTypeWithQualityHeaderValue("application/json"));
                 try
                 {
-                    var result = await client.GetStringAsync(_apiUrl);
-                    return result;
+                    var result = client.GetStringAsync(_apiUrl).Result;
+                    dynamic value = JObject.Parse(result);
+                    FlightPlanData externalFlightPlanData = CreateFlightPlanDataFromJson(value.value);
+                    return externalFlightPlanData;
                 }
-                catch (Exception e)
+                catch(Exception e)
                 {
                     Console.WriteLine();
                     return null;
                 }
-                
-                return NotFound();
             }
         }
         /*
@@ -99,7 +140,7 @@ namespace FlightControlWeb.Controllers
          */
         // GET: api/FlightPlans/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<FlightPlanData>> GetFlightPlan(string id)
+        public async Task<ActionResult<dynamic>> GetFlightPlan(string id)
         {
             var flight = await _flightContext.ExternalFlightItems.Where
                 (x => x.FlightId == id).FirstOrDefaultAsync();

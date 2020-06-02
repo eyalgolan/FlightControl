@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace FlightControlWeb.Models
 {
@@ -19,6 +20,7 @@ namespace FlightControlWeb.Models
         // this member represent the segment's ending latitude
         [Required] public double Latitude { get; set; }
         // this member represent the segment's length in seconds
+        [JsonPropertyName("timespan_seconds")]
         [Required] public int TimeSpanSeconds { get; set; }
         // this member represent the segment's starting time
         [Required] public DateTime StartTime { get; set; }
