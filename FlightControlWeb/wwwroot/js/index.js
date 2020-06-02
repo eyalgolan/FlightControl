@@ -48,7 +48,6 @@ function getFlightsData() {
     let nowUTC = new Date().toISOString();
     nowUTC = nowUTC.split('.')[0] + "Z";
     $.get(`api/flights?relative_to=${nowUTC}&sync_all`, function (allFlights, status) {
-
         let error = document.getElementById("getFlightsError");
 
         if (status === "success") {
@@ -311,7 +310,6 @@ function addTitle() {
 
 // the function renders the details of a flight to the table.
 function renderFlightDetails(flightPlan, flightID) {
-
     // clearing previous information.
     $("#flight_details thead").html('');
     $("#flight_details tbody").html('');
@@ -320,7 +318,7 @@ function renderFlightDetails(flightPlan, flightID) {
     addTitle();
 
     // creating the row of the table and appending it.
-    let departureTime = new Date(flightPlan.initial_location.dateTime).toISOString();
+    let departureTime = new Date(flightPlan.initial_location.date_time).toISOString();
     departureTime = departureTime.split('.')[0] + "Z";
     let arrivalTime = calculateArrivalTime(flightPlan);
     arrivalTime = arrivalTime.split('.')[0] + "Z";
@@ -341,16 +339,16 @@ function renderFlightDetails(flightPlan, flightID) {
     $("#flight_details tbody").append(rowHTML$);
 }
 
-// the function returns the arrival time by summing the timespanSeconds of all segments.
+// the function returns the arrival time by summing the timespan_seconds of all segments.
 function calculateArrivalTime(flightPlan) {
     let len = flightPlan.segments.length;
     let sum = 0;
     for (let i = 0; i < len; ++i) {
-        sum += flightPlan.segments[i].timeSpanSeconds;
+        sum += flightPlan.segments[i].timespan_seconds;
     }
 
     // adding the seconds and converting to the required format (yyyy-MM-ddTHH:mm:ssZ).
-    let departureTime = new Date(flightPlan.initial_location.dateTime);
+    let departureTime = new Date(flightPlan.initial_location.date_time);
     departureTime.setSeconds(departureTime.getSeconds() + sum);
     let arrivalTime = departureTime.toISOString();
     return arrivalTime;
