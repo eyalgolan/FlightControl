@@ -68,13 +68,14 @@ namespace FlightControlWeb.Controllers
             return flightPlanData;
         }
 
-        private FlightPlanData CreateFlightPlanDataFromJson(dynamic obj)
+        /*
+         * Creating an initial FlightPlanData object which will be filled with the remaining fiels later
+         */
+        private FlightPlanData BuildInitialFlightPlanDataObject(dynamic obj)
         {
             double longitude = double.Parse(obj["initial_location"]["longitude"].ToString());
             double latitude = double.Parse(obj["initial_location"]["latitude"].ToString());
             DateTime dateTime = obj["initial_location"]["date_time"];
-
-            dynamic segments = obj["segments"];
 
             FlightPlanData newFlightPlanData = new FlightPlanData()
             {
@@ -88,7 +89,18 @@ namespace FlightControlWeb.Controllers
                     DateTime = dateTime
                 }
             };
+            return newFlightPlanData;
+        }
 
+        /*
+         * Parsing the received json into the FlightPlanData object
+         */
+        private FlightPlanData CreateFlightPlanDataFromJson(dynamic obj)
+        {
+
+            FlightPlanData newFlightPlanData = BuildInitialFlightPlanDataObject(obj);
+
+            dynamic segments = obj["segments"];
             IEnumerable<Segment> segmentList = new List<Segment>();
             foreach (var segment in segments)
             {
