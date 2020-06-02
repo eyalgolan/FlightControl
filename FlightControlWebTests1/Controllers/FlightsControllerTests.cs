@@ -105,7 +105,7 @@ namespace FlightControlWeb.Controllers.Tests
 
             // check that result is not null and parse the result for further checks
             Assert.IsNotNull(result);
-            var resultFlightId = result.FlightID;
+            var resultFlightId = result.FlightId;
             var resultLongitude = result.Longitude;
             var resultLatitude = result.Latitude;
             var resultPassengers = result.Passengers;

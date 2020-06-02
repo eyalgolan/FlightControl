@@ -144,7 +144,7 @@ namespace FlightControlWeb.Controllers
                         .FirstOrDefaultAsync();
                     var relevantFlightData = new FlightData
                     {
-                        FlightID = relevantFlight.FlightId
+                        FlightId = relevantFlight.FlightId
                     };
 
                     var currentInitial = await _flightContext.InitialLocationItems
@@ -179,7 +179,7 @@ namespace FlightControlWeb.Controllers
         {
             var newFlightData = new FlightData()
             {
-                FlightID = item["flight_id"],
+                FlightId = item["flight_id"],
                 Latitude = item["latitude"],
                 Longitude = item["longitude"],
                 Passengers = item["passengers"],

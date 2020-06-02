@@ -14,7 +14,7 @@ namespace FlightControlWeb.Models
     {
         // the "external" id of the flight
         [JsonPropertyName("flight_id")]
-        public string FlightID { get; set; }
+        public string FlightId { get; set; }
         // the initial longitude of the flight
         [JsonPropertyName("longitude")]
         public double Longitude { get; set; }
