@@ -111,7 +111,7 @@ namespace FlightControlWeb.Controllers.Tests
             var resultPassengers = result.Passengers;
             var resultCompanyName = result.CompanyName;
             var pattern = "dd-MMM-yy h:mm:ss tt";
-            CultureInfo culture = new CultureInfo("en-US");
+            var culture = new CultureInfo("en-US");
             var resultDateTime = result.CurrDateTime.ToString(pattern, culture);
             var resultIsExternal = result.IsExternal;
 
