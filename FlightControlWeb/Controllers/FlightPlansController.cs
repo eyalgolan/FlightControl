@@ -87,7 +87,7 @@ namespace FlightControlWeb.Controllers
                 Passengers = flightPlan.Passengers,
                 CompanyName = flightPlan.CompanyName,
                 InitialLocation = initialData,
-                Segments = matchingSegments
+                Segments = matchingSegmentData
             };
 
             return flightPlanData;
