@@ -150,7 +150,7 @@ namespace FlightControlWeb.Controllers
         /*
          * Getting flights from external servers using a http client
          */
-        private FlightPlanData GetExternalFlightPlan(string id, Flight flight)
+        private async Task<FlightPlanData> GetExternalFlightPlan(string id, Flight flight)
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
             var _baseAddress = flight.OriginServer;
@@ -158,9 +158,9 @@ namespace FlightControlWeb.Controllers
             {
                 try
                 {
-                    var result = client.GetStringAsync(_apiUrl).Result;
+                    var result = await client.GetStringAsync(_apiUrl);
                     dynamic value = JObject.Parse(result);
-                    FlightPlanData externalFlightPlanData = CreateFlightPlanDataFromJson(value.value);
+                    FlightPlanData externalFlightPlanData = CreateFlightPlanDataFromJson(value);
                     return externalFlightPlanData;
                 }
                 catch(Exception e)
@@ -184,7 +184,7 @@ namespace FlightControlWeb.Controllers
 
             if (flight.IsExternal)
             {
-                var requestedFlightPlan = GetExternalFlightPlan(id, flight);
+                var requestedFlightPlan = await GetExternalFlightPlan(id, flight);
                 return requestedFlightPlan;
             }
             var flightPlan = await _flightContext.FlightPlanItems.Where
