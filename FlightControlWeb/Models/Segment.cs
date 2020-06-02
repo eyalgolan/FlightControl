@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlightControlWeb.Models
 {
+    /*
+     * this class represent a segment as we save it in our DBs
+     */
     public class Segment
     {
         [Key] public int Id { get; set; }
