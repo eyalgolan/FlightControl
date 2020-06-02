@@ -65,7 +65,7 @@ namespace FlightControlWeb.Controllers
          * This method creates a copy of an existing flight plan and returns it as Data 
          * so that the user who asked for it would get it in a valid format.
          */
-        private async Task<ActionResult<FlightPlanData>> 
+        private async Task<FlightPlanData>
             BuildMatchingFlightPlan(string id, FlightPlan flightPlan)
         {
             var matchingFlight = await _flightContext.FlightItems.Where(x => x.FlightId == flightPlan.FlightId)
@@ -150,7 +150,7 @@ namespace FlightControlWeb.Controllers
         /*
          * Getting flights from external servers using a http client
          */
-        private async Task<ActionResult<FlightPlanData>> GetExternalFlightPlan(string id, Flight flight)
+        private async Task<FlightPlanData> GetExternalFlightPlan(string id, Flight flight)
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
             var _baseAddress = flight.OriginServer;
@@ -177,19 +177,20 @@ namespace FlightControlWeb.Controllers
          */
         // GET: api/FlightPlans/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<dynamic>> GetFlightPlan(string id)
+        public async Task<FlightPlanData> GetFlightPlan(string id)
         {
             var flight = await _flightContext.ExternalFlightItems.Where
                 (x => x.FlightId == id).FirstOrDefaultAsync();
 
             if (flight.IsExternal)
             {
-                return await GetExternalFlightPlan(id, flight);
+                var requestedFlightPlan = await GetExternalFlightPlan(id, flight);
+                return requestedFlightPlan;
             }
             var flightPlan = await _flightContext.FlightPlanItems.Where
                 (x => x.FlightId == id).FirstOrDefaultAsync();
 
-            if (flightPlan == null) return NotFound();
+            if (flightPlan == null) return null;
 
             return await BuildMatchingFlightPlan(id, flightPlan);
         }
