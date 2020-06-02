@@ -4,6 +4,10 @@ using System.Linq;
 
 namespace FlightControlWeb.Models
 {
+    /*
+     * This method defines a new Flight Plan Manager
+     * and it creates new internal flights
+     */
     public class FlightPlanManager : IFlightPlanManager
     {
         /*
