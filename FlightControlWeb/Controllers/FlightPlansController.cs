@@ -65,6 +65,9 @@ namespace FlightControlWeb.Controllers
             return flightPlanData;
         }
 
+        /*
+         * Getting flights from external servers using a http client
+         */
         private async Task<ActionResult<FlightPlanData>> GetExternalFlightPlan(string id, Flight flight)
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
