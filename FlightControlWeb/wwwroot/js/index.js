@@ -22,13 +22,13 @@ $(document).ready(function () {
 // initalizing map.
 function initMap() {
     // creating the map.
-    map = window.L.map('map', {
+    map = L.map('map', {
         center: [20.0, 5.0],
         minZoom: 2,
         zoom: 2
     });
 
-    window.L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         subdomains: ['a', 'b', 'c']
     }).addTo(map);
@@ -39,7 +39,7 @@ function initMap() {
             unselectAllMarkers();
             deletePolyLine();
             deleteFromFlightDetails(currSelectedID);
-        }
+        };
     });
 }
 
@@ -48,26 +48,19 @@ function getFlightsData() {
     let nowUTC = new Date().toISOString();
     nowUTC = nowUTC.split('.')[0] + "Z";
     $.get(`api/flights?relative_to=${nowUTC}&sync_all`, function (allFlights, status) {
-
-        let error = document.getElementById("getFlightsError");
-
-        if (status === "success") {
-            error.innerHTML = "";
-            if (toDeleteMarkers) {
-                map.removeLayer(markersLayer);
-                toDeleteMarkers = false;
-            }
-            renderFlightData(allFlights);
-            createMarkers(allFlights);
-
-            // if the selected flight doesn't exist anymore (because it has finished).
-            if (!isFlightExisting(allFlights)) {
-                deletePolyLine();
-                deleteFromFlightDetails(currSelectedID);
-            }
-        } else {
-            displayError(2);
+        if (toDeleteMarkers) {
+            map.removeLayer(markersLayer);
+            toDeleteMarkers = false;
         }
+        renderFlightData(allFlights);
+        createMarkers(allFlights);
+
+        // if the selected flight doesn't exist anymore (because it has finished).
+        if (!isFlightExisting(allFlights)) {
+            deletePolyLine();
+            deleteFromFlightDetails(currSelectedID);
+        }
+
     });
 }
 
@@ -97,8 +90,7 @@ function renderFlightData(data) {
         rowHTML += `</tr>`;
         let rowHTML$ = $(rowHTML);
 
-        // when a row is clicked we render the flight details table,
-        // marker the selected flight, draw the polyline and paint the row.
+        // when a row is clicked we render the flight details table.
         rowHTML$.click(function (e) {
             if (!e.target.classList.contains('deleteIcon')) {
                 // getting the flightID we wish to paint
@@ -107,20 +99,13 @@ function renderFlightData(data) {
                 currSelectedID = flightTH.innerText;
 
                 $.get(`api/FlightPlan/${flight.flight_id}`, function (flightPlan, status) {
-                    let error = document.getElementById("getFlightPlanError");
-
-                    if (status === "success") {
-                        error.innerHTML = "";
-                        // painting the row.
-                        $(this).addClass('text-info').siblings().removeClass('text-info');
-                        renderFlightDetails(flightPlan, flight.flight_id);
-                        // deletes previous poly line.
-                        deletePolyLine();
-                        // draw the new poly line.
-                        createPolyline(flightPlan);
-                    } else {
-                        displayError(3);
-                    }
+                    // painting the row.
+                    $(this).addClass('text-info').siblings().removeClass('text-info');
+                    renderFlightDetails(flightPlan, flight.flight_id);
+                    // deletes previous poly line.
+                    deletePolyLine();
+                    // draw the new poly line.
+                    createPolyline(flightPlan);
                 });
             }
         });
@@ -141,7 +126,7 @@ function renderFlightData(data) {
 // the function create markers on the map based on the data of the flights we polled.
 function createMarkers(flights) {
     // creating the markers.
-    markersLayer = window.L.featureGroup();
+    markersLayer = L.featureGroup();
     map.addLayer(markersLayer);
 
     let longitude;
@@ -154,7 +139,7 @@ function createMarkers(flights) {
         latitude = flights[i].latitude;
         markerID = flights[i].flight_id;
 
-        currMarker = window.L.marker([latitude, longitude], { id: markerID }).
+        currMarker = L.marker([latitude, longitude], { id: markerID }).
             addTo(markersLayer);
         toDeleteMarkers = true;
 
@@ -171,17 +156,10 @@ function createMarkers(flights) {
             deletePolyLine();
 
             $.get(`api/FlightPlan/${currSelectedID}`, function (flightPlan, status) {
-                let error = document.getElementById("getFlightPlanError");
-
-                if (status === "success") {
-                    error.innerHTML = "";
-                    // draws the polyline of the selected flight.
-                    createPolyline(flightPlan);
-                    // render the flight details table.
-                    renderFlightDetails(flightPlan, currSelectedID)
-                } else {
-                    displayError(3);
-                }
+                // draws the polyline of the selected flight.
+                createPolyline(flightPlan);
+                // render the flight details table.
+                renderFlightDetails(flightPlan, currSelectedID);
             });
         });
 
@@ -202,7 +180,7 @@ function createMarkers(flights) {
 function unselectAllMarkers() {
     // prepare the unselect icon to be ready to use.
     let myURL = $('script[src$="leaflet.js"]').attr('src').replace('leaflet.js', '');
-    let unselected = window.L.icon({
+    let unselected = L.icon({
         iconUrl: myURL + '../css/images/airplane2x.png',
         iconRetinaUrl: myURL + '../css/images/airplane.png',
         iconSize: [24, 24],
@@ -218,7 +196,7 @@ function unselectAllMarkers() {
 // the function creates the selected airplane icon.
 function createSelectedIcon() {
     let myURL = $('script[src$="leaflet.js"]').attr('src').replace('leaflet.js', '');
-    let selectedIcon = window.L.icon({
+    let selectedIcon = L.icon({
         iconUrl: myURL + '../css/images/airplane.png',
         iconRetinaUrl: myURL + '../css/images/airplane2x.png',
         iconSize: [32, 32],
@@ -295,7 +273,7 @@ function paintRow() {
 }
 
 // the function adds the title to the flight details table.
-function addTitle() {
+function addTitle() {    
     let title = `<tr>
                 <th scope="col">Flight ID</th>
                 <th scope="col">Airline</th>
@@ -358,7 +336,7 @@ function calculateArrivalTime(flightPlan) {
 
 // the functions creates the polyline of the selected flight by it's segments.
 function createPolyline(flightPlan) {
-    polylineLayer = window.L.featureGroup();
+    polylineLayer = L.featureGroup();
     map.addLayer(polylineLayer);
 
     let polyLine = [
@@ -367,7 +345,7 @@ function createPolyline(flightPlan) {
     for (let i = 0; i < flightPlan.segments.length; i++) {
         polyLine[i + 1] = [flightPlan.segments[i].latitude, flightPlan.segments[i].longitude];
     }
-    window.L.polyline(polyLine).addTo(polylineLayer);
+    L.polyline(polyLine).addTo(polylineLayer);
     toDeletePoly = true;
 }
 
@@ -381,23 +359,22 @@ function deletePolyLine() {
 
 // the function initializes the drop-zone.
 function initDropzone() {
-    let dropZone = document.getElementById("myDropzone");
     Dropzone.options.myDropzone = {
         // The name that will be used to transfer the file.
         paramName: "files",
         // allows for cancellation of file upload and remove thumbnail.
         addRemoveLinks: true,
         init: function () {
-            dropZone = this;
-
-            dropZone.on("success", function (file) {
-                dropZone.removeFile(file);
-                let error = document.getElementById("dropzoneError");
+            myDropzone = this;
+            myDropzone.on("success", function (file, response) {
+                myDropzone.removeFile(file);
+                let error = document.getElementById("dispalyError");
                 error.innerHTML = "";
             });
-            dropZone.on("error", function (file) {
-                dropZone.removeFile(file);
-                displayError(1);
+            myDropzone.on("error", function (file, response) {
+                myDropzone.removeFile(file);
+                let error = document.getElementById("dispalyError");
+                error.innerHTML = "Insert JSON file in a valid format";
             });
         }
     };
@@ -414,28 +391,4 @@ function isFlightExisting(allFlights) {
         }
     }
     return flag;
-}
-
-// the functions displays the most recent error on the screen.
-function displayError(num) {
-    let dropzoneError = document.getElementById("dropzoneError");
-    let flightsError = document.getElementById("getFlightsError");
-    let flightPlanError = document.getElementById("getFlightPlanError");
-
-    // if the error occoured in the dropzone.
-    if (num === 1) {
-        dropzoneError.innerHTML = "Please insert JSON file in a valid format.";
-        flightsError.innerHTML = "";
-        flightPlanError.innerHTML = "";
-    } else if (num === 2) {
-        // if the error occoured in GET all flights.
-        dropzoneError.innerHTML = "";
-        flightsError.innerHTML = "An error has occoured when trying to receive all flights from server.";
-        flightPlanError.innerHTML = "";
-    } else if (num === 3) {
-        // if the error occoured in GET the flight plan of the selected flight.
-        dropzoneError.innerHTML = "";
-        flightsError.innerHTML = "";
-        flightPlanError.innerHTML = "An error has occoured when trying to receive a flight plan from server.";
-    }
 }
