@@ -249,12 +249,12 @@ namespace FlightControlWeb.Controllers
          * Updates the DB and populates the given list accordingly, returns the list
          */
         private async Task<IEnumerable<FlightData>> AddExternalFlights
-            (IEnumerable<FlightData> relevantFlights, string relativeTo)
+            (IEnumerable<FlightData> relevantFlights, string relative_to)
         {
             var servers = await _flightContext.ServerItems.ToListAsync();
             foreach (var server in servers)
             {
-                var apiUrl = server.ServerUrl + "/api/Flights?relativeTo=" + relativeTo;
+                var apiUrl = server.ServerUrl + "/api/Flights?relativeTo=" + relative_to;
                 var baseAddress = server.ServerUrl;
 
                 dynamic result = null;
