@@ -68,7 +68,7 @@ namespace FlightControlWeb.Controllers
         /*
          * Getting flights from external servers using a http client
          */
-        private async Task<ActionResult<FlightPlanData>> GetExternalFlightPlan(string id, Flight flight)
+        private async Task<ActionResult<dynamic>> GetExternalFlightPlan(string id, Flight flight)
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
             var _baseAddress = flight.OriginServer;
@@ -78,13 +78,17 @@ namespace FlightControlWeb.Controllers
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add
                     (new MediaTypeWithQualityHeaderValue("application/json"));
-                var result = await client.GetAsync(_apiUrl);
-
-                if (result.IsSuccessStatusCode)
+                try
                 {
-                    var response = result.Content.ReadAsAsync<FlightPlanData>().Result;
-                    return response;
+                    var result = await client.GetStringAsync(_apiUrl);
+                    return result;
                 }
+                catch (Exception e)
+                {
+                    Console.WriteLine();
+                    return null;
+                }
+                
                 return NotFound();
             }
         }
