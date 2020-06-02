@@ -35,7 +35,8 @@ namespace FlightControlWeb.Controllers
         }
 
         // POST: api/Servers
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // To protect from overposting attacks, enable the specific properties
+        // you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
 
         /* 
@@ -63,7 +64,8 @@ namespace FlightControlWeb.Controllers
                 }
             }
 
-            return CreatedAtAction("GetAllServers", new { id = server.ServerId }, server);
+            return CreatedAtAction
+                ("GetAllServers", new { id = server.ServerId }, server);
         }
 
         // DELETE: api/Servers/5
@@ -77,7 +79,8 @@ namespace FlightControlWeb.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Server>> DeleteServer(string id)
         {
-            var server = await _context.ServerItems.Where(x => x.ServerId == id).FirstOrDefaultAsync();
+            var server = await _context.ServerItems.Where
+                (x => x.ServerId == id).FirstOrDefaultAsync();
             if (server == null)
             {
                 return NotFound();

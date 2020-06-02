@@ -41,7 +41,8 @@ namespace FlightControlWeb.Controllers
         private async Task<IEnumerable<FlightPlan>> FindPlanStartingBefore(DateTime relative_to)
         {
             IEnumerable<InitialLocation> relevantInitials =
-                await _flightContext.InitialLocationItems.Where(x => x.DateTime <= relative_to).ToListAsync();
+                await _flightContext.InitialLocationItems.Where
+                    (x => x.DateTime <= relative_to).ToListAsync();
             var relevantPlans = Enumerable.Empty<FlightPlan>();
             foreach (var initial in relevantInitials)
             {
@@ -57,8 +58,10 @@ namespace FlightControlWeb.Controllers
         * This method find the specific segment that the flight is in at given time, and updates it
         * live so we can see in each and every moment on the HTTP view where the flight is at
         */
-        private static void FindAndUpdateLocation(DateTime relative_to, SortedDictionary<int, Segment> planSegmentDict,
-            double secondsInFlight, InitialLocation currentInitial, FlightData relevantFlightData, FlightPlan plan)
+        private static void FindAndUpdateLocation(DateTime relative_to, 
+            SortedDictionary<int, Segment> planSegmentDict,
+            double secondsInFlight, InitialLocation currentInitial, 
+            FlightData relevantFlightData, FlightPlan plan)
         {
             foreach (var k in planSegmentDict)
                 // if the seconds that passed since the beginning of the flight are greater 
@@ -102,9 +105,9 @@ namespace FlightControlWeb.Controllers
         * This method updates the data of a flight (especially location) and add it to
         * the relevant flights list.
         */
-        private async Task<IEnumerable<FlightData>> UpdateAndAddFlight(DateTime relative_to,
-            InitialLocation currentInitial, FlightPlan currentPlan, FlightData relevantFlightData, FlightPlan plan,
-            IEnumerable<FlightData> relevantFlights)
+        private async Task<IEnumerable<FlightData>> UpdateAndAddFlight(DateTime relative_to, 
+            InitialLocation currentInitial, FlightPlan currentPlan, FlightData relevantFlightData,
+            FlightPlan plan, IEnumerable<FlightData> relevantFlights)
         {
             var secondsInFlight = (relative_to - currentInitial.DateTime).TotalSeconds;
 
@@ -118,8 +121,8 @@ namespace FlightControlWeb.Controllers
                 index++;
             }
 
-            FindAndUpdateLocation(relative_to, planSegmentDict, secondsInFlight, currentInitial, relevantFlightData,
-                plan);
+            FindAndUpdateLocation(relative_to, planSegmentDict, 
+                secondsInFlight, currentInitial, relevantFlightData, plan);
 
             relevantFlights = relevantFlights.Append(relevantFlightData);
 
@@ -133,14 +136,15 @@ namespace FlightControlWeb.Controllers
          * the given time it creates a flight data object and adds it to a list.
          * in the it returns all the relevant data for these flights.
          */
-        private async Task<IEnumerable<FlightData>> FindRelevantInternalFlights(IEnumerable<FlightPlan> relevantPlans,
-            DateTime relative_to)
+        private async Task<IEnumerable<FlightData>> FindRelevantInternalFlights
+            (IEnumerable<FlightPlan> relevantPlans, DateTime relative_to)
         {
             IEnumerable<FlightData> relevantFlights = new List<FlightData>();
             foreach (var plan in relevantPlans)
                 if (plan.EndTime >= relative_to)
                 {
-                    var relevantFlight = await _flightContext.FlightItems.Where(x => x.FlightId == plan.FlightId)
+                    var relevantFlight = await _flightContext.FlightItems.Where
+                            (x => x.FlightId == plan.FlightId)
                         .FirstOrDefaultAsync();
                     var relevantFlightData = new FlightData
                     {
@@ -149,9 +153,8 @@ namespace FlightControlWeb.Controllers
 
                     var currentInitial = await _flightContext.InitialLocationItems
                         .Where(x => x.FlightPlanId == plan.Id).FirstOrDefaultAsync();
-                    relevantFlights = await UpdateAndAddFlight(relative_to, currentInitial, plan, relevantFlightData,
-                        plan,
-                        relevantFlights);
+                    relevantFlights = await UpdateAndAddFlight(relative_to, currentInitial,
+                        plan, relevantFlightData, plan, relevantFlights);
                 }
 
             return relevantFlights;
@@ -210,9 +213,11 @@ namespace FlightControlWeb.Controllers
         }
 
         /*
-         * Given a Json object containing a list of flights, the method parses it, adds the flights to a the db and to a list and returns the list
+         * Given a Json object containing a list of flights, the method parses it,
+         * adds the flights to a the db and to a list and returns the list
          */
-        private async Task<IEnumerable<FlightData>> AddJsonItemsToList(IEnumerable<FlightData> relevantFlights,dynamic jsonResult, Server server)
+        private async Task<IEnumerable<FlightData>> AddJsonItemsToList
+            (IEnumerable<FlightData> relevantFlights,dynamic jsonResult, Server server)
         {
             foreach (var item in jsonResult)
             {
@@ -220,7 +225,8 @@ namespace FlightControlWeb.Controllers
                 relevantFlights = relevantFlights.Append(newFlightData);
 
                 string flightId = item["flight_id"];
-                var flightInDb = await _flightContext.ExternalFlightItems.AnyAsync(x => x.FlightId == flightId);
+                var flightInDb = await _flightContext.ExternalFlightItems.AnyAsync
+                    (x => x.FlightId == flightId);
                 if (!flightInDb)
                 {
                     var newFlight = new Flight()
@@ -242,7 +248,8 @@ namespace FlightControlWeb.Controllers
          * Given a string representing a time, gets all the flights from the external servers - relevant to that time.
          * Updates the DB and populates the given list accordingly, returns the list
          */
-        private async Task<IEnumerable<FlightData>> AddExternalFlights(IEnumerable<FlightData> relevantFlights, string relativeTo)
+        private async Task<IEnumerable<FlightData>> AddExternalFlights
+            (IEnumerable<FlightData> relevantFlights, string relativeTo)
         {
             var servers = await _flightContext.ServerItems.ToListAsync();
             foreach (var server in servers)
@@ -284,7 +291,8 @@ namespace FlightControlWeb.Controllers
 
             var relevantPlans = await FindPlanStartingBefore(relativeToDate);
 
-            var internalFlights = await FindRelevantInternalFlights(relevantPlans, relativeToDate);
+            var internalFlights = await FindRelevantInternalFlights
+                (relevantPlans, relativeToDate);
             IEnumerable<FlightData> externalFlights = new List<FlightData>();
 
             if (Request != null)
@@ -310,10 +318,12 @@ namespace FlightControlWeb.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Flight>> DeleteFlight(string id)
         {
-            var flight = await _flightContext.FlightItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
+            var flight = await _flightContext.FlightItems.Where
+                (x => x.FlightId == id).FirstOrDefaultAsync();
             if (flight == null) return NotFound();
 
-            var flightPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
+            var flightPlan = await _flightContext.FlightPlanItems.Where
+                (x => x.FlightId == id).FirstOrDefaultAsync();
             _flightContext.FlightPlanItems.Remove(flightPlan);
             _flightContext.FlightItems.Remove(flight);
             await _flightContext.SaveChangesAsync();

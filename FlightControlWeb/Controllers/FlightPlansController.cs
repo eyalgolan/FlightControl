@@ -44,14 +44,16 @@ namespace FlightControlWeb.Controllers
          * This method creates a copy of an existing flight plan and returns it as Data 
          * so that the user who asked for it would get it in a valid format.
          */
-        private async Task<ActionResult<FlightPlanData>> BuildMatchingFlightPlan(string id, FlightPlan flightPlan)
+        private async Task<ActionResult<FlightPlanData>> 
+            BuildMatchingFlightPlan(string id, FlightPlan flightPlan)
         {
             var matchingFlight = await _flightContext.FlightItems.Where(x => x.FlightId == flightPlan.FlightId)
                 .FirstOrDefaultAsync();
             var matchingInitialLocation = await _flightContext.InitialLocationItems
                 .Where(x => x.FlightPlanId == flightPlan.Id).FirstOrDefaultAsync();
             IEnumerable<Segment> matchingSegments =
-                await _flightContext.SegmentItems.Where(x => x.FlightPlanId == flightPlan.Id).ToListAsync();
+                await _flightContext.SegmentItems.Where
+                    (x => x.FlightPlanId == flightPlan.Id).ToListAsync();
             var flightPlanData = new FlightPlanData
             {
                 Passengers = flightPlan.Passengers,
@@ -71,7 +73,8 @@ namespace FlightControlWeb.Controllers
             {
                 client.BaseAddress = new Uri(_baseAddress);
                 client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Accept.Add
+                    (new MediaTypeWithQualityHeaderValue("application/json"));
                 var result = await client.GetAsync(_apiUrl);
 
                 if (result.IsSuccessStatusCode)
@@ -91,13 +94,15 @@ namespace FlightControlWeb.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<FlightPlanData>> GetFlightPlan(string id)
         {
-            var flight = await _flightContext.ExternalFlightItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
+            var flight = await _flightContext.ExternalFlightItems.Where
+                (x => x.FlightId == id).FirstOrDefaultAsync();
 
             if (flight.IsExternal)
             {
                 return await GetExternalFlightPlan(id, flight);
             }
-            var flightPlan = await _flightContext.FlightPlanItems.Where(x => x.FlightId == id).FirstOrDefaultAsync();
+            var flightPlan = await _flightContext.FlightPlanItems.Where
+                (x => x.FlightId == id).FirstOrDefaultAsync();
 
             if (flightPlan == null) return NotFound();
 
@@ -135,8 +140,8 @@ namespace FlightControlWeb.Controllers
          * This method adds new initial locations we get from each flight in our DBs
          * and return it.
          */
-        private InitialLocation AddInitialLocation(FlightPlan newFlightPlan, double longitude, double latitude,
-            DateTime dateTime)
+        private InitialLocation AddInitialLocation(FlightPlan newFlightPlan, double longitude,
+            double latitude, DateTime dateTime)
         {
             var newInitialLocation = new InitialLocation
             {
@@ -154,7 +159,8 @@ namespace FlightControlWeb.Controllers
          * This method adds new segments we get from each flight in our DBs
          * and return the last segment's end time.
          */
-        private DateTime AddSegments(DateTime dateTime, dynamic segmentsObj, FlightPlan newFlightPlan)
+        private DateTime AddSegments(DateTime dateTime, dynamic segmentsObj,
+            FlightPlan newFlightPlan)
         {
             var start = dateTime;
             var end = start;
@@ -200,7 +206,8 @@ namespace FlightControlWeb.Controllers
                 throw;
             }
 
-            return CreatedAtAction("GetFlightPlan", new {id = newFlightPlan.FlightId}, newFlightPlan);
+            return CreatedAtAction
+                ("GetFlightPlan", new {id = newFlightPlan.FlightId}, newFlightPlan);
         }
 
         /*
@@ -221,10 +228,12 @@ namespace FlightControlWeb.Controllers
             var newFlight = _flightManager.AddFlight();
             await _flightContext.FlightItems.AddAsync(newFlight);
 
-            var newFlightPlan = _flightPlanManager.AddFlightPlan(newFlight, passengers, companyName);
+            var newFlightPlan = _flightPlanManager.AddFlightPlan
+                (newFlight, passengers, companyName);
             await _flightContext.FlightPlanItems.AddAsync(newFlightPlan);
             
-            var newInitialLocation = AddInitialLocation(newFlightPlan, longitude, latitude, dateTime);
+            var newInitialLocation = AddInitialLocation
+                (newFlightPlan, longitude, latitude, dateTime);
 
             DateTime end = AddSegments(dateTime, segmentsObj, newFlightPlan);
 
