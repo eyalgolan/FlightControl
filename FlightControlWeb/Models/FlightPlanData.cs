@@ -20,9 +20,9 @@ namespace FlightControlWeb.Models
         public string CompanyName { get; set; }
         // the initial location of the flight (longitude, latitude and time)
         [JsonPropertyName("initial_location")]
-        public InitialLocation InitialLocation { get; set; }
+        public InitialLocationData InitialLocation { get; set; }
         // the segments describing the flight path
         [JsonPropertyName("segments")]
-        public IEnumerable<Segment> Segments { get; set; }
+        public IEnumerable<SegmentData> Segments { get; set; }
     }
 }

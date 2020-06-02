@@ -43,6 +43,24 @@ namespace FlightControlWeb.Controllers
             _clientFactory = clientFactory;
         }
 
+
+        private IEnumerable<SegmentData> BuildMatchingSegmentData(IEnumerable<Segment> matchingSegments)
+        {
+            IEnumerable<SegmentData> matchingSegmentData = new List<SegmentData>();
+
+            foreach (var segment in matchingSegments)
+            {
+                SegmentData newSegmentData = new SegmentData()
+                {
+                    Longitude = segment.Longitude,
+                    Latitude = segment.Latitude,
+                    TimeSpanSeconds = segment.TimeSpanSeconds
+                };
+                matchingSegmentData = matchingSegmentData.Append(newSegmentData);
+            }
+
+            return matchingSegmentData;
+        }
         /*
          * This method creates a copy of an existing flight plan and returns it as Data 
          * so that the user who asked for it would get it in a valid format.
@@ -54,14 +72,21 @@ namespace FlightControlWeb.Controllers
                 .FirstOrDefaultAsync();
             var matchingInitialLocation = await _flightContext.InitialLocationItems
                 .Where(x => x.FlightPlanId == flightPlan.Id).FirstOrDefaultAsync();
+            InitialLocationData initialData = new InitialLocationData()
+            {
+                Longitude = matchingInitialLocation.Longitude,
+                Latitude = matchingInitialLocation.Latitude,
+                DateTime = matchingInitialLocation.DateTime
+            };
             IEnumerable<Segment> matchingSegments =
                 await _flightContext.SegmentItems.Where
                     (x => x.FlightPlanId == flightPlan.Id).ToListAsync();
+            IEnumerable<SegmentData> matchingSegmentData = BuildMatchingSegmentData(matchingSegments);
             var flightPlanData = new FlightPlanData
             {
                 Passengers = flightPlan.Passengers,
                 CompanyName = flightPlan.CompanyName,
-                InitialLocation = matchingInitialLocation,
+                InitialLocation = initialData,
                 Segments = matchingSegments
             };
 
@@ -82,7 +107,7 @@ namespace FlightControlWeb.Controllers
 
                 Passengers = int.Parse(obj["passengers"].ToString()),
                 CompanyName = obj["company_name"].ToString(),
-                InitialLocation = new InitialLocation()
+                InitialLocation = new InitialLocationData()
                 {
                     Longitude = longitude,
                     Latitude = latitude,
@@ -101,14 +126,14 @@ namespace FlightControlWeb.Controllers
             FlightPlanData newFlightPlanData = BuildInitialFlightPlanDataObject(obj);
 
             dynamic segments = obj["segments"];
-            IEnumerable<Segment> segmentList = new List<Segment>();
+            IEnumerable<SegmentData> segmentList = new List<SegmentData>();
             foreach (var segment in segments)
             {
                 double segmentLongitude = double.Parse(segment["longitude"].ToString());
                 double segmentLatitude = double.Parse(segment["latitude"].ToString());
                 int timeSpanSeconds = int.Parse(segment["timespan_seconds"].ToString());
 
-                Segment newSegment = new Segment()
+                SegmentData newSegment = new SegmentData()
                 {
                     Longitude = segmentLongitude,
                     Latitude = segmentLatitude,
