@@ -31,7 +31,8 @@ namespace FlightControlWeb.Controllers
         private readonly IFlightManager _flightManager;
         private readonly IFlightPlanManager _flightPlanManager;
 
-        public FlightPlansController(FlightContext flightContext, IFlightManager flightManager, IFlightPlanManager flightPlanManager, IHttpClientFactory clientFactory)
+        public FlightPlansController(FlightContext flightContext, IFlightManager flightManager, 
+            IFlightPlanManager flightPlanManager, IHttpClientFactory clientFactory)
         {
             _flightContext = flightContext;
             _flightPlanManager = flightPlanManager;
