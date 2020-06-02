@@ -45,7 +45,7 @@ namespace FlightControlWeb.Controllers
          * so that the user who asked for it would get it in a valid format.
          */
         private async Task<ActionResult<FlightPlanData>> 
-            BuildMatchingFlightPlan(FlightPlan flightPlan)
+            BuildMatchingFlightPlan(string id, FlightPlan flightPlan)
         {
             var matchingFlight = await _flightContext.FlightItems.Where(x => x.FlightId == flightPlan.FlightId)
                 .FirstOrDefaultAsync();
@@ -65,11 +65,11 @@ namespace FlightControlWeb.Controllers
             return flightPlanData;
         }
 
-        private async Task<ActionResult<FlightPlanData>> GetExternalFlightPlan(Flight flight)
+        private async Task<ActionResult<FlightPlanData>> GetExternalFlightPlan(string id, Flight flight)
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
             var _baseAddress = flight.OriginServer;
-            using var client = _clientFactory.CreateClient();
+            using (var client = _clientFactory.CreateClient())
             {
                 client.BaseAddress = new Uri(_baseAddress);
                 client.DefaultRequestHeaders.Accept.Clear();
@@ -99,14 +99,14 @@ namespace FlightControlWeb.Controllers
 
             if (flight.IsExternal)
             {
-                return await GetExternalFlightPlan(flight);
+                return await GetExternalFlightPlan(id, flight);
             }
             var flightPlan = await _flightContext.FlightPlanItems.Where
                 (x => x.FlightId == id).FirstOrDefaultAsync();
 
             if (flightPlan == null) return NotFound();
 
-            return await BuildMatchingFlightPlan(flightPlan);
+            return await BuildMatchingFlightPlan(id, flightPlan);
         }
 
         /*
@@ -253,7 +253,7 @@ namespace FlightControlWeb.Controllers
          * when we done parsing and creating each flight plan object we add it to our DB. 
          */
         [HttpPost]
-        public IActionResult PostFlightPlan(List<IFormFile> files)
+        public async Task<IActionResult> PostFlightPlan(List<IFormFile> files)
         {
             var result = BuildString(files);
             var bodyObj = ConvertAndDeserialize(result);

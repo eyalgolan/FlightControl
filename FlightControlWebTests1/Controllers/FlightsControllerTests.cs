@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using FlightControlWeb.Controllers;
 using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Protected;
 
-namespace FlightControlWebTests.Controllers
+namespace FlightControlWeb.Controllers.Tests
 {
     [TestClass]
     public class FlightsControllerTests

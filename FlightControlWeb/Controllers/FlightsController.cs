@@ -164,13 +164,14 @@ namespace FlightControlWeb.Controllers
          * This method run over all the external available flights, from all of the
          * external servers and return them
          */
-        private async Task<dynamic> GetExternalFlight(string apiUrl)
+        private async Task<dynamic> GetExternalFlight(string _apiUrl, string _baseAddress)
         {
             dynamic result;
-            using var client = _clientFactory.CreateClient();
+            using (var client = _clientFactory.CreateClient())
             {
-                result = await client.GetStringAsync(apiUrl);
+                result = await client.GetStringAsync(_apiUrl);
             }
+
             return result;
         }
 
@@ -259,7 +260,7 @@ namespace FlightControlWeb.Controllers
                 dynamic result = null;
                 try
                 {
-                    result = await GetExternalFlight(apiUrl);
+                    result = await GetExternalFlight(apiUrl, baseAddress);
                 }
                 catch (Exception e)
                 {
