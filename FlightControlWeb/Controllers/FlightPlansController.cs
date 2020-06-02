@@ -150,7 +150,7 @@ namespace FlightControlWeb.Controllers
         /*
          * Getting flights from external servers using a http client
          */
-        private async Task<FlightPlanData> GetExternalFlightPlan(string id, Flight flight)
+        private FlightPlanData GetExternalFlightPlan(string id, Flight flight)
         {
             var _apiUrl = flight.OriginServer + "/api/FlightPlan/" + flight.FlightId;
             var _baseAddress = flight.OriginServer;
@@ -184,7 +184,7 @@ namespace FlightControlWeb.Controllers
 
             if (flight.IsExternal)
             {
-                var requestedFlightPlan = await GetExternalFlightPlan(id, flight);
+                var requestedFlightPlan = GetExternalFlightPlan(id, flight);
                 return requestedFlightPlan;
             }
             var flightPlan = await _flightContext.FlightPlanItems.Where
