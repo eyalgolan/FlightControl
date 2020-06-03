@@ -202,7 +202,7 @@ function unselectAllMarkers() {
     // prepare the unselect icon to be ready to use.
     let myURL = $('script[src$="leaflet.js"]').attr('src').replace('leaflet.js', '');
     let unselected = window.L.icon({
-        iconUrl: myURL + '../css/images/airplane2x.png',
+        iconUrl: myURL + '../css/images/airplane.png',
         iconRetinaUrl: myURL + '../css/images/airplane.png',
         iconSize: [24, 24],
         iconAnchor: [9, 21],
@@ -218,7 +218,7 @@ function unselectAllMarkers() {
 function createSelectedIcon() {
     let myURL = $('script[src$="leaflet.js"]').attr('src').replace('leaflet.js', '');
     let selectedIcon = window.L.icon({
-        iconUrl: myURL + '../css/images/airplane.png',
+        iconUrl: myURL + '../css/images/airplane2x.png',
         iconRetinaUrl: myURL + '../css/images/airplane2x.png',
         iconSize: [32, 32],
         iconAnchor: [9, 21],
