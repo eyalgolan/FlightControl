@@ -11,7 +11,7 @@ We built our frontend using Javascript, bootstrap and css. The backend was built
 
 The web application features a flight control system that presents current active flights, enables adding new flight plans and show details about each flight (it's path on a map, it's start time and arrival time, etc).
 
-![WebApplicationFlightControl](img/WebApplicationFlightControl.jpg)
+![WebApplicationFlightControl](img/WebApplicationFlightControl.JPG)
 ## DB
 
 ### DB structure
