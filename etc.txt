@@ -1,0 +1,9 @@
+307900183,Almog Lev
+318645520,Sapir Deutscher
+305169468,Ofir Netzer
+204229223,Eyal Golan
+
+Unit test:
+Our unit test creates all the objects that we are using in our program- 
+Flight object, Flight Plan object, Initial Location object and Segment objects. Then, it adds them asynchronically to our data base.
+when it's done filling the data base, it runs the GetFlights method with the test objects, gets the results and checks if they are correct.

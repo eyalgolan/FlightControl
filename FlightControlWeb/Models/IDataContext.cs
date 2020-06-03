@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace FlightControlWeb.Models
 {

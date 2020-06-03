@@ -1,21 +1,17 @@
-﻿using System;
+﻿using FlightControlWeb.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using FlightControlWeb.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 /*
  * This class is the controller of for the flight plans we get from internal
@@ -34,7 +30,7 @@ namespace FlightControlWeb.Controllers
         private readonly IFlightManager _flightManager;
         private readonly IFlightPlanManager _flightPlanManager;
 
-        public FlightPlansController(FlightContext flightContext, IFlightManager flightManager, 
+        public FlightPlansController(FlightContext flightContext, IFlightManager flightManager,
             IFlightPlanManager flightPlanManager, IHttpClientFactory clientFactory)
         {
             _flightContext = flightContext;
@@ -163,7 +159,7 @@ namespace FlightControlWeb.Controllers
                     FlightPlanData externalFlightPlanData = CreateFlightPlanDataFromJson(value);
                     return externalFlightPlanData;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine();
                     return null;
@@ -293,7 +289,7 @@ namespace FlightControlWeb.Controllers
             }
 
             return CreatedAtAction
-                ("GetFlightPlan", new {id = newFlightPlan.FlightId}, newFlightPlan);
+                ("GetFlightPlan", new { id = newFlightPlan.FlightId }, newFlightPlan);
         }
 
         /*
@@ -310,14 +306,14 @@ namespace FlightControlWeb.Controllers
             double latitude = bodyObj["initial_location"]["latitude"];
             DateTime dateTime = bodyObj["initial_location"]["date_time"];
             var segmentsObj = bodyObj["segments"];
-            
+
             var newFlight = _flightManager.AddFlight();
             await _flightContext.FlightItems.AddAsync(newFlight);
 
             var newFlightPlan = _flightPlanManager.AddFlightPlan
                 (newFlight, passengers, companyName);
             await _flightContext.FlightPlanItems.AddAsync(newFlightPlan);
-            
+
             var newInitialLocation = AddInitialLocation
                 (newFlightPlan, longitude, latitude, dateTime);
 

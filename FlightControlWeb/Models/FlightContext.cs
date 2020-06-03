@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace FlightControlWeb.Models
 {

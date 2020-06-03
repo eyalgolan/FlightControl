@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
-using FlightControlWeb.Models;
+﻿using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace FlightControlWeb.Controllers
 {
@@ -58,9 +52,9 @@ namespace FlightControlWeb.Controllers
         * This method find the specific segment that the flight is in at given time, and updates it
         * live so we can see in each and every moment on the HTTP view where the flight is at
         */
-        private static void FindAndUpdateLocation(DateTime relative_to, 
+        private static void FindAndUpdateLocation(DateTime relative_to,
             SortedDictionary<int, Segment> planSegmentDict,
-            double secondsInFlight, InitialLocation currentInitial, 
+            double secondsInFlight, InitialLocation currentInitial,
             FlightData relevantFlightData, FlightPlan plan)
         {
             foreach (var k in planSegmentDict)
@@ -105,7 +99,7 @@ namespace FlightControlWeb.Controllers
         * This method updates the data of a flight (especially location) and add it to
         * the relevant flights list.
         */
-        private async Task<IEnumerable<FlightData>> UpdateAndAddFlight(DateTime relative_to, 
+        private async Task<IEnumerable<FlightData>> UpdateAndAddFlight(DateTime relative_to,
             InitialLocation currentInitial, FlightPlan currentPlan, FlightData relevantFlightData,
             FlightPlan plan, IEnumerable<FlightData> relevantFlights)
         {
@@ -121,7 +115,7 @@ namespace FlightControlWeb.Controllers
                 index++;
             }
 
-            FindAndUpdateLocation(relative_to, planSegmentDict, 
+            FindAndUpdateLocation(relative_to, planSegmentDict,
                 secondsInFlight, currentInitial, relevantFlightData, plan);
 
             relevantFlights = relevantFlights.Append(relevantFlightData);
@@ -217,7 +211,7 @@ namespace FlightControlWeb.Controllers
          * adds the flights to a the db and to a list and returns the list
          */
         private async Task<IEnumerable<FlightData>> AddJsonItemsToList
-            (IEnumerable<FlightData> relevantFlights,dynamic jsonResult, Server server)
+            (IEnumerable<FlightData> relevantFlights, dynamic jsonResult, Server server)
         {
             foreach (var item in jsonResult)
             {
@@ -239,7 +233,7 @@ namespace FlightControlWeb.Controllers
                     await _flightContext.SaveChangesAsync();
                 }
             }
-            
+
 
             return relevantFlights;
         }

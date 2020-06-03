@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace FlightControlWeb.Models
+﻿namespace FlightControlWeb.Models
 {
     /*
      * this interface represent every flight we will have in our program.

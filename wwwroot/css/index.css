@@ -1,0 +1,13 @@
+﻿table thead tr {
+    display: block;
+}
+
+table th, table td {
+    width: 180px;
+}
+
+table tbody {
+    display: block;
+    height: 400px;
+    overflow: auto;
+}

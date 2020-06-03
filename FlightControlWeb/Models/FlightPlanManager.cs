@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace FlightControlWeb.Models
+﻿namespace FlightControlWeb.Models
 {
     /*
      * This method defines a new Flight Plan Manager

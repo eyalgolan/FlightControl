@@ -1,7 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>./out</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +41,10 @@
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="mkdir $(SolutionDir)\wwwroot&#xD;&#xA;mkdir $(SolutionDir)\out\wwwroot&#xD;&#xA;xcopy /E /Y &quot;$(ProjectDir)wwwroot&quot; &quot;$(SolutionDir)wwwroot&quot;&#xD;&#xA;xcopy /E /Y &quot;$(ProjectDir)wwwroot&quot; &quot;$(SolutionDir)out/wwwroot&quot;&#xD;&#xA;" />
+  </Target>
 
 
 </Project>
