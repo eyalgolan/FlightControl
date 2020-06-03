@@ -36,6 +36,8 @@ namespace FlightControlWeb
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
@@ -48,8 +50,6 @@ namespace FlightControlWeb
             {
                 endpoints.MapControllers();
             });
-
-            //app.UseDefaultFiles(new DefaultFilesOptions { DefaultFileNames = new List<string> { "FlightsPage.html" } });
         }
     }
 }

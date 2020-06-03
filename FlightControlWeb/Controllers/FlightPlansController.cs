@@ -165,7 +165,7 @@ namespace FlightControlWeb.Controllers
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine();
+                    Console.WriteLine(e.ToString());
                     return null;
                 }
             }
@@ -346,7 +346,7 @@ namespace FlightControlWeb.Controllers
 
             try
             {
-                AddObjects(bodyObj);
+                await AddObjects(bodyObj);
             }
             catch (Exception)
             {
