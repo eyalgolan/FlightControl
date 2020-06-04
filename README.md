@@ -23,7 +23,7 @@ Action | Path | Description
 ------ | --------- | ----------
 GET | /api/Flights?relative_to=<DATE_TIME> | Return an array in the body, containing the status of all the internal flights
 GET | /api/Flights?relative_to=<DATE_TIME>&sync_all | Return an array in the body, containing the status of all flights (internal and external)
-POST | /api/FlightPlan | Adds a new flight plan, described in the request's body
+POST | /api/FlightPlan | Adds a new flight plan, described in the request's body (only by using the drag and drop)
 GET | /api/FlightPlan/{id} | Returns the flight plan with that id
 DELETE | /api/Flights/{id} | Deletes the flight with that id
 GET | /api/servers | Returns a list in the body, containing all the external servers the application show flights from
@@ -32,7 +32,7 @@ DELETE | /api/servers/{id} | Deletes the server with that Id from the external s
 
 ### Adding Flights
 
-The user can add a flight by by adding a flight plan json using the drag and drop feature.
+The user can add a flight by adding a flight plan json using the drag and drop feature.
 
 The flight plan json is in the following structure:
 
