@@ -59,4 +59,13 @@ The application can also connect with external servers and show their flights (A
 ![InteractingWithExternalServers](img/InteractingWithExternalServers.jpg)
 
 ### DB structure
+
+We used an in-memory Entity Framework DB, that contained several tables: 
+* FlightItems - Used to store internal flights
+* ExternalFlightItems - Used to store external flights
+* FlightPlanItems - Used to store flight plans of internal flights
+* InitialLocationItems - Used to store initial locations of internal flights
+* SegmentItems - used to store the flight segments of internal flights
+* ServerItems - used to store the external servers the application is getting exteranl flights from
+
 ![DBStructure](img/dbStructure.jpg)
