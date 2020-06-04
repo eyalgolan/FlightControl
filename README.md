@@ -1,5 +1,5 @@
 # FlightControl
-Advanced Programming 2 course, Flight Simulator App
+Advanced Programming 2 course, Flight control web application
 
 Created by: Almog Lev, Eyal Golan, Sapir Deutscher and Ofir Netzer.
 
