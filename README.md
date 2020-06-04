@@ -20,6 +20,7 @@ The web application features a flight control system that presents current activ
 The user can add a flight by by adding a flight plan json using the drag and drop feature.
 
 The flight plan json is in the following structure:
+
 ```
 {
   "passengers": 257,
@@ -39,28 +40,21 @@ The flight plan json is in the following structure:
       "longitude": 21.346370,
       "latitude": 39.419221,
       "timespan_seconds": 2000
-    },
-    {
-      "longitude": 10.845660,
-      "latitude": 43.771094,
-      "timespan_seconds": 800
-    },
-    {
-      "longitude": 2.314577,
-      "latitude": 48.283193,
-      "timespan_seconds": 900
     }
   ]
 }
 ```
+
 ### Interacting with external servers
 
 The application can also connect with external servers and show their flights (And vice versa):
+
 ![InteractingWithExternalServers](img/InteractingWithExternalServers.jpg)
 
 ### DB structure
 
 We used an in-memory Entity Framework DB, that contained several tables: 
+
 * FlightItems - Used to store internal flights
 * ExternalFlightItems - Used to store external flights
 * FlightPlanItems - Used to store flight plans of internal flights
