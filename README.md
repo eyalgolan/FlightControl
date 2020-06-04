@@ -77,4 +77,4 @@ We used an in-memory Entity Framework DB, that contained several tables:
 * SegmentItems - used to store the flight segments of internal flights
 * ServerItems - used to store the external servers the application is getting exteranl flights from
 
-![DBStructure](img/dbStructure.jpg)
+![DBStructure](img/DBStructure.jpg)
