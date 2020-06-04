@@ -15,9 +15,47 @@ The web application features a flight control system that presents current activ
 
 ## Program explanation
 
-### Adding Flight plans
+### Adding Flights
 
+The user can add a flight by by adding a flight plan json using the drag and drop feature.
+
+The flight plan json is in the following structure:
+```
+{
+  "passengers": 257,
+  "company_name": "ISRAIR",
+  "initial_location": {
+    "longitude": 21.239979,
+    "latitude": 32.026706,
+    "date_time": "2020-06-03T13:30:00Z"
+  },
+  "segments": [
+    {
+      "longitude": 23.240702,
+      "latitude": 34.921971,
+      "timespan_seconds": 1000
+    },
+    {
+      "longitude": 21.346370,
+      "latitude": 39.419221,
+      "timespan_seconds": 2000
+    },
+    {
+      "longitude": 10.845660,
+      "latitude": 43.771094,
+      "timespan_seconds": 800
+    },
+    {
+      "longitude": 2.314577,
+      "latitude": 48.283193,
+      "timespan_seconds": 900
+    }
+  ]
+}
+```
 ### Interacting with external servers
+
+The application can also connect with external servers and show their flights (And vice versa):
 ![InteractingWithExternalServers](img/InteractingWithExternalServers.jpg)
 
 ### DB structure
