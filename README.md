@@ -20,7 +20,7 @@ The web application features a flight control system that presents current activ
 The api supports the following actions:
 
 Action | Path | Description
------- | ---- | ----------
+------ | --------- | ----------
 GET | /api/Flights?relative_to=<DATE_TIME> | Return an array in the body, containing the status of all the internal flights
 GET | /api/Flights?relative_to=<DATE_TIME>&sync_all | Return an array in the body, containing the status of all flights (internal and external)
 POST | /api/FlightPlan | Adds a new flight plan, described in the request's body
