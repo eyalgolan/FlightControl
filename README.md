@@ -18,7 +18,7 @@ The web application features a flight control system that presents current activ
 ### Adding Flight plans
 
 ### Interacting with external servers
-![InteractingWithExternalServers](img/InteractingWithExternalServers.jpg)
+![InteractingWithExternalServers](img/InteractingWithExternalServers2.jpg)
 
 ### DB structure
 ![DBStructure](img/dbStructure.jpg)
