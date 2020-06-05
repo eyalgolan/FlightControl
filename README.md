@@ -71,13 +71,6 @@ The application can also connect with external servers and show their flights:
 
 ### DB structure
 
-We used an in-memory SQL DB, that contained several tables: 
-
-* FlightItems - used to store internal flights
-* ExternalFlightItems - used to store external flights
-* FlightPlanItems - used to store flight plans of internal flights
-* InitialLocationItems - used to store initial locations of internal flights
-* SegmentItems - used to store the flight segments of internal flights
-* ServerItems - used to store the external servers the application is getting exteranl flights from
+We use an in-memory SQL DB that contains several tables. We use seperate tables for internal and external flights to make our queries more efficient.
 
 ![DBStructure](img/DBStructure.jpg)
