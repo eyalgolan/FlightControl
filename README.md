@@ -24,20 +24,20 @@ The api supports the following actions:
 
 Action | Path | Description
 ------ | --------- | ----------
-GET | /api/Flights?relative_to=<DATE_TIME> | Return an array in the body, containing the status of all the internal flights
-GET | /api/Flights?relative_to=<DATE_TIME>&sync_all | Return an array in the body, containing the status of all flights (internal and external)
-POST | /api/FlightPlan | Adds a new flight plan, described in the request's body (only by using the drag and drop)
-GET | /api/FlightPlan/{id} | Returns the flight plan with that id
-DELETE | /api/Flights/{id} | Deletes the flight with that id
-GET | /api/servers | Returns a list in the body, containing all the external servers the application show flights from
+GET | /api/Flights?relative_to=<DATE_TIME> | Returns all the internal flights active in DATE_TIME
+GET | /api/Flights?relative_to=<DATE_TIME>&sync_all | Returns all flights (internal and external) active in DATE_TIME
+POST | /api/FlightPlan | Adds a new flight plan
+GET | /api/FlightPlan/{id} | Returns the flight plan with the given id
+DELETE | /api/Flights/{id} | Deletes the flight with the given id
+GET | /api/servers | Returns all the external servers that provide flight data to the application
 POST | /api/servers | Adds a new external server
-DELETE | /api/servers/{id} | Deletes the server with that Id from the external servers list
+DELETE | /api/servers/{id} | Deletes the server with the given Id from the external servers list
 
 ### Adding Flights
 
-The user can add a flight by adding a flight plan json using the drag and drop feature.
+The user can add a flight by dragging a flight plan json file into the drag and drop area.
 
-The flight plan json is in the following structure:
+The structure of a flight plan json is as follows:
 
 ```
 {
@@ -65,13 +65,13 @@ The flight plan json is in the following structure:
 
 ### Interacting with external servers
 
-The application can also connect with external servers and show their flights (And vice versa):
+The application can also connect with external servers and show their flights:
 
 ![InteractingWithExternalServers](img/InteractingWithExternalServers.jpg)
 
 ### DB structure
 
-We used an in-memory Entity Framework DB, that contained several tables: 
+We used an in-memory SQL DB, that contained several tables: 
 
 * FlightItems - used to store internal flights
 * ExternalFlightItems - used to store external flights
