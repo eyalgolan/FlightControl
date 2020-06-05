@@ -67,10 +67,14 @@ The structure of a flight plan json is as follows:
 
 The application can also connect with external servers and show their flights:
 
+The following image shows two seperate sites. Each site has its own internal server. The site on the left has the internal server of the site on the right as its external server. Simillary, the right site has the internal server of the left site as its external server. 
+
 ![InteractingWithExternalServers](img/InteractingWithExternalServers.jpg)
 
 ### DB structure
 
 We use an in-memory SQL DB that contains several tables. We use seperate tables for internal and external flights to make our queries more efficient.
+
+The database structure is as follows:
 
 ![DBStructure](img/DBStructure.jpg)
