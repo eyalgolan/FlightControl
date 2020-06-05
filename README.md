@@ -5,14 +5,14 @@ Created by: Almog Lev, Eyal Golan, Sapir Deutscher and Ofir Netzer.
 
 ## Preview
 
-A flight control web application that interacts with a dedicated server. 
+A flight control RESTful web application.
 
-We built our frontend using Javascript, bootstrap and css. 
+We built our frontend using Javascript, JQuery, bootstrap, html and css. 
 
-The backend was built using C# and ASP.NET Core, we created a RESTful API using WebAPI and the DB was built using Entity Framework. 
-Unit Tests were created using Moq.
+The backend was built using C#, ASP.NET Core, and Entity Framework (with in-memory SQL DB). We created a RESTful API using WebAPI.
+For unit testing we used Moq.
 
-The web application features a flight control system that presents current active flights, enables adding new flight plans and show details about each flight (it's path on a map, it's start time and arrival time, etc). 
+The web application features a flight control system that shows active flights, enables adding new flight plans and shows details about each flight. Upon clicking on a flight, its path is shown on the map.
 
 ![WebApplicationFlightControl](img/WebApplicationFlightControl.JPG)
 
